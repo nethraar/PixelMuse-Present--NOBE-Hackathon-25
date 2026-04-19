@@ -1,65 +1,136 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import AppShell from '@/components/AppShell';
+import NewProjectModal from '@/components/NewProjectModal';
+import { initData, getProjects, getSessions } from '@/lib/data';
+import { Project, SessionScore } from '@/lib/types';
+
+const CATEGORY_LABELS: Record<string, string> = {
+  school: 'School', club: 'Club', internship: 'Internship', casual: 'Casual',
+};
+const MODE_COLORS: Record<string, string> = {
+  professional: 'bg-blue-900 text-blue-300',
+  personal: 'bg-amber-900 text-amber-300',
+};
+
+function progressCount(p: Project) {
+  return Object.values(p.progressStatus).filter(Boolean).length;
+}
+
+export default function Dashboard() {
+  const router = useRouter();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [sessions, setSessions] = useState<SessionScore[]>([]);
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    initData();
+    setProjects(getProjects());
+    setSessions(getSessions());
+  }, []);
+
+  const latestScore = sessions.length ? sessions[sessions.length - 1].avgScore : 0;
+  const firstScore = sessions.length ? sessions[0].avgScore : 0;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <AppShell>
+      <div className="p-4 space-y-4">
+        {/* Score trajectory widget */}
+        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-white font-semibold text-sm">AI Literacy Score</span>
+            <span className="text-violet-400 font-bold text-lg">{latestScore}<span className="text-gray-500 text-xs">/100</span></span>
+          </div>
+          <div className="flex items-end gap-1.5 h-10 mb-2">
+            {sessions.map((s, i) => (
+              <div key={i} className="flex-1 flex flex-col items-end">
+                <div
+                  className={`w-full rounded-t transition-all ${i === sessions.length - 1 ? 'bg-violet-500' : 'bg-gray-700'}`}
+                  style={{ height: `${(s.avgScore / 100) * 40}px` }}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-between text-xs text-gray-500">
+            <span>Session 1: {firstScore}</span>
+            <span>Now: {latestScore} ↑{latestScore - firstScore} pts</span>
+          </div>
+          <p className="text-gray-500 text-xs mt-2">Every prompt — professional or personal — builds this score.</p>
+        </div>
+
+        {/* Next step suggestion */}
+        {projects[0] && (
+          <div
+            className="bg-violet-950 border border-violet-800 rounded-xl p-3 flex items-start gap-3 cursor-pointer hover:bg-violet-900 transition-colors"
+            onClick={() => router.push(`/project/${projects[0].id}`)}
+          >
+            <div className="text-violet-400 text-lg mt-0.5">→</div>
+            <div>
+              <p className="text-violet-200 text-sm font-medium">Continue {projects[0].title}</p>
+              <p className="text-violet-400 text-xs mt-0.5">
+                Next: create a diagram — {progressCount(projects[0])}/4 visuals done
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Projects header */}
+        <div className="flex items-center justify-between">
+          <span className="text-white font-semibold text-sm">Projects</span>
+          <button
+            onClick={() => setShowModal(true)}
+            className="text-xs bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-lg transition-colors font-medium"
+          >
+            + New
+          </button>
+        </div>
+
+        {/* Project cards */}
+        <div className="space-y-2">
+          {projects.map(p => (
+            <div
+              key={p.id}
+              onClick={() => router.push(`/project/${p.id}`)}
+              className="bg-gray-900 border border-gray-800 rounded-xl p-3 cursor-pointer hover:border-gray-600 transition-colors"
+            >
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <p className="text-white text-sm font-medium leading-tight">{p.title}</p>
+                <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${MODE_COLORS[p.mode]}`}>
+                  {p.mode === 'professional' ? 'Pro' : 'Personal'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex gap-2">
+                  <span className="text-gray-500 text-xs">{CATEGORY_LABELS[p.category]}</span>
+                  {p.platform && (
+                    <span className="text-gray-600 text-xs">
+                      · {p.platform === 'google-slides' ? 'Google Slides' : 'PowerPoint'}
+                    </span>
+                  )}
+                </div>
+                <span className="text-gray-600 text-xs">{progressCount(p)}/4 done</span>
+              </div>
+              <div className="flex gap-1 mt-2">
+                {Object.entries(p.progressStatus).map(([key, done]) => (
+                  <div key={key} className={`h-1 flex-1 rounded-full ${done ? 'bg-violet-500' : 'bg-gray-800'}`} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {showModal && (
+        <NewProjectModal
+          onClose={() => setShowModal(false)}
+          onCreate={() => {
+            setProjects(getProjects());
+            setShowModal(false);
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+    </AppShell>
   );
 }
