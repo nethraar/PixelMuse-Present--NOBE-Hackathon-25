@@ -60,21 +60,25 @@ export default function Dashboard() {
           <p className="text-gray-500 text-xs mt-2">Every prompt — professional or personal — builds this score.</p>
         </div>
 
-        {/* Next step suggestion */}
-        {projects[0] && (
-          <div
-            className="bg-violet-950 border border-violet-800 rounded-xl p-3 flex items-start gap-3 cursor-pointer hover:bg-violet-900 transition-colors"
-            onClick={() => router.push(`/project/${projects[0].id}`)}
-          >
-            <div className="text-violet-400 text-lg mt-0.5">→</div>
-            <div>
-              <p className="text-violet-200 text-sm font-medium">Continue {projects[0].title}</p>
-              <p className="text-violet-400 text-xs mt-0.5">
-                Next: create a diagram — {progressCount(projects[0])}/4 visuals done
-              </p>
+        {/* Next step suggestion — most recent incomplete project */}
+        {(() => {
+          const next = projects.find(p => progressCount(p) < 4) ?? projects[0];
+          if (!next) return null;
+          const remaining = (['cover','diagram','divider','extras'] as const).find(k => !next.progressStatus[k]);
+          const action = remaining ? `Next: create a ${remaining} visual` : 'All visuals done — share your project!';
+          return (
+            <div
+              className="bg-violet-950 border border-violet-800 rounded-xl p-3 flex items-start gap-3 cursor-pointer hover:bg-violet-900 transition-colors"
+              onClick={() => router.push(`/project/${next.id}`)}
+            >
+              <div className="text-violet-400 text-lg mt-0.5">→</div>
+              <div>
+                <p className="text-violet-200 text-sm font-medium">Continue {next.title}</p>
+                <p className="text-violet-400 text-xs mt-0.5">{action} — {progressCount(next)}/4 done</p>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Projects header */}
         <div className="flex items-center justify-between">

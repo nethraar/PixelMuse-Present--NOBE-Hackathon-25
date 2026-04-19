@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import AppShell from '@/components/AppShell';
-import { getProject, getAssets, saveAsset, saveProject } from '@/lib/data';
+import { getProject, getAssets, saveAsset, saveProject, addSession, getSessions } from '@/lib/data';
 import { Project, Asset, Mode, PromptScore } from '@/lib/types';
 
 declare const puter: any;
@@ -107,8 +107,15 @@ export default function ProjectPage() {
       promptScore: score ?? fallbackScore,
     };
     saveAsset(asset);
-    setAssets(getAssets(project.id));
+    const updatedAssets = getAssets(project.id);
+    setAssets(updatedAssets);
     setSaved(true);
+
+    // Update session score trajectory
+    const avgScore = Math.round(
+      updatedAssets.reduce((sum, a) => sum + a.promptScore.overall, 0) / updatedAssets.length
+    );
+    addSession(avgScore);
 
     // Update project updatedAt
     saveProject({ ...project, updatedAt: new Date().toISOString().split('T')[0] });
@@ -138,14 +145,21 @@ export default function ProjectPage() {
             <span className="text-gray-500 text-xs capitalize">{project.category}</span>
             {project.platform && <span className="text-gray-600 text-xs">· {project.platform === 'google-slides' ? 'Google Slides' : 'PowerPoint'}</span>}
           </div>
-          {/* Progress tracker */}
+          {/* Progress tracker — click to toggle */}
           <div className="flex gap-2 mt-2">
-            {[['Cover','cover'],['Diagram','diagram'],['Divider','divider'],['Extras','extras']].map(([label, key]) => (
-              <div key={key} className="flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${project.progressStatus[key as keyof typeof project.progressStatus] ? 'bg-violet-500' : 'bg-gray-700'}`} />
-                <span className="text-gray-500 text-xs">{label}</span>
-              </div>
-            ))}
+            {([['Cover','cover'],['Diagram','diagram'],['Divider','divider'],['Extras','extras']] as [string,keyof typeof project.progressStatus][]).map(([label, key]) => {
+              const done = project.progressStatus[key];
+              return (
+                <button key={key} onClick={() => {
+                  const updated = { ...project, progressStatus: { ...project.progressStatus, [key]: !done } };
+                  saveProject(updated);
+                  setProject(updated);
+                }} className="flex items-center gap-1 group">
+                  <div className={`w-2 h-2 rounded-full transition-colors ${done ? 'bg-violet-500' : 'bg-gray-700 group-hover:bg-gray-500'}`} />
+                  <span className={`text-xs transition-colors ${done ? 'text-violet-400' : 'text-gray-500 group-hover:text-gray-400'}`}>{label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
