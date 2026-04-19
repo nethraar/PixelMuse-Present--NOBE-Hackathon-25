@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import AppShell, { PlacedItem } from '@/components/AppShell';
 import { getProject, getAssets, saveAsset, saveProject, addSession } from '@/lib/data';
@@ -71,6 +71,18 @@ async function canvasRemoveBg(dataUrl: string, tolerance = 35): Promise<string> 
     img.onerror = () => resolve(dataUrl); // fallback: return original
     img.src = dataUrl;
   });
+}
+
+async function loadPDFJS(): Promise<any> {
+  if (typeof window !== 'undefined' && (window as any).pdfjsLib) return (window as any).pdfjsLib;
+  await new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.onload = () => resolve();
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+  return (window as any).pdfjsLib;
 }
 
 const PRO_CHIPS = [
@@ -168,6 +180,10 @@ export default function ProjectPage() {
   const [placed, setPlaced] = useState(false);
   const [iconMode, setIconMode] = useState(false);
   const [removingBg, setRemovingBg] = useState(false);
+  const [uploadedSlides, setUploadedSlides] = useState<string[]>([]);
+  const [selectedSlide, setSelectedSlide] = useState(0);
+  const [loadingSlides, setLoadingSlides] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const p = getProject(id);
@@ -258,7 +274,8 @@ export default function ProjectPage() {
       x: 10 + offset, y: 10 + offset,
       w: iconMode ? 20 : 40,
       h: iconMode ? 30 : 60,
-      removeBg: false, // Already baked into png via canvas
+      removeBg: false,
+      slideIndex: selectedSlide,
     };
     setPlacedItems(prev => [...prev, newItem]);
     setPlaced(true);
@@ -281,6 +298,43 @@ export default function ProjectPage() {
     setDownloading(false);
   }
 
+  async function handleFileUpload(files: FileList | null) {
+    const file = files?.[0];
+    if (!file) return;
+    setLoadingSlides(true);
+    setUploadedSlides([]);
+    setSelectedSlide(0);
+
+    try {
+      const pdfjsLib = await loadPDFJS();
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pageCount = Math.min(pdf.numPages, 30);
+
+      for (let i = 1; i <= pageCount; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d')!;
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+        // Stream slides in as they render
+        setUploadedSlides(prev => [...prev, dataUrl]);
+      }
+    } catch (e) {
+      console.error('PDF render failed:', e);
+      alert('Could not load PDF. Make sure the file is a valid PDF.\nFor PPTX: File → Download → PDF in Google Slides, or Save As → PDF in PowerPoint.');
+    } finally {
+      setLoadingSlides(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }
+
   const chips = mode === 'professional' ? PRO_CHIPS : PERSONAL_CHIPS;
   const isPro = mode === 'professional';
   const modeAccent = isPro ? 'bg-blue-600 hover:bg-blue-500' : 'bg-amber-500 hover:bg-amber-400';
@@ -289,6 +343,14 @@ export default function ProjectPage() {
   if (!project) return null;
 
   return (
+    <>
+    <input
+      ref={fileInputRef}
+      type="file"
+      accept=".pdf"
+      style={{ display: 'none' }}
+      onChange={e => handleFileUpload(e.target.files)}
+    />
     <AppShell
       generating={generating}
       projectTitle={project.title}
@@ -301,6 +363,11 @@ export default function ProjectPage() {
         const newUrl = await canvasRemoveBg(item.url);
         setPlacedItems(prev => prev.map(it => it.id === id ? { ...it, url: newUrl } : it));
       }}
+      uploadedSlides={uploadedSlides}
+      selectedSlide={selectedSlide}
+      onSelectSlide={setSelectedSlide}
+      onRequestUpload={() => fileInputRef.current?.click()}
+      loadingSlides={loadingSlides}
     >
       <div className="flex flex-col h-full">
         {/* Project header */}
@@ -599,5 +666,6 @@ export default function ProjectPage() {
         </div>
       </div>
     </AppShell>
+    </>
   );
 }
