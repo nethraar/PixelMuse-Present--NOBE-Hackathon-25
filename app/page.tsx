@@ -63,140 +63,148 @@ export default function Dashboard() {
     <AppShell slideImage={featuredImage}>
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="px-5 pt-5 pb-4 border-b" style={{ borderColor: '#1e1e30' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold tracking-widest uppercase mb-0.5" style={{ color: '#4a4a68', letterSpacing: '0.12em' }}>Dashboard</p>
-              <h1 className="text-lg font-semibold tracking-tight" style={{ color: '#eeeef8' }}>Your Projects</h1>
-            </div>
-            <button
-              onClick={() => setShowModal(true)}
-              className="text-xs font-semibold px-3 py-1.5 rounded-md transition-all"
-              style={{ background: '#5b7af8', color: '#fff' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#6f8cff'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#5b7af8'; }}
-            >
-              + New
-            </button>
+        <div className="px-5 pt-5 pb-4 border-b flex items-center justify-between" style={{ borderColor: '#e0e0e0' }}>
+          <div>
+            <p className="text-xs font-semibold tracking-widest uppercase mb-0.5" style={{ color: '#9aa0a6', letterSpacing: '0.1em' }}>Dashboard</p>
+            <h1 className="text-xl font-semibold" style={{ color: '#202124' }}>Your Projects</h1>
           </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="text-sm font-medium px-4 py-2 rounded-md transition-colors flex items-center gap-1.5"
+            style={{ background: '#1a73e8', color: '#fff' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#1557b0'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#1a73e8'; }}
+          >
+            <span style={{ fontSize: '16px', lineHeight: 1 }}>+</span> New
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {/* Score section */}
-          <div className="px-5 pt-5 pb-5 border-b" style={{ borderColor: '#1e1e30' }}>
-            <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#4a4a68', letterSpacing: '0.12em' }}>AI Literacy Score</p>
-            <div className="flex items-end justify-between mb-3">
-              <div className="flex items-baseline gap-2">
-                <span className="font-bold tracking-tight" style={{ color: '#eeeef8', fontSize: '42px', lineHeight: 1 }}>{latestScore}</span>
-                <span className="text-base" style={{ color: '#4a4a68' }}>/100</span>
-                {scoreDelta > 0 && (
-                  <span className="text-xs font-bold px-1.5 py-0.5 rounded-sm" style={{ background: '#0d2a1a', color: '#3eca7a' }}>
-                    +{scoreDelta}
-                  </span>
-                )}
-              </div>
-              {/* Session bars */}
-              <div className="flex items-end gap-1 h-9">
-                {sessions.map((s, i) => (
-                  <div
-                    key={i}
-                    title={`Session ${s.session}: ${s.avgScore}`}
-                    className="w-2 rounded-sm"
-                    style={{
-                      height: `${Math.max(4, (s.avgScore / 100) * 36)}px`,
-                      background: i === sessions.length - 1 ? '#5b7af8' : '#1e1e30',
-                    }}
-                  />
-                ))}
-              </div>
+          {/* Score widget */}
+          <div className="mx-5 mt-5 rounded-xl border overflow-hidden" style={{ borderColor: '#e0e0e0' }}>
+            <div className="px-5 pt-4 pb-3 border-b" style={{ background: '#f8f9fa', borderColor: '#e0e0e0' }}>
+              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#9aa0a6', letterSpacing: '0.1em' }}>AI Literacy Score</p>
             </div>
-            <div className="flex justify-between" style={{ color: '#6868a0', fontSize: '11px' }}>
-              <span>Session 1 — {firstScore}</span>
-              <span>Now — {latestScore}</span>
+            <div className="px-5 py-4" style={{ background: '#fff' }}>
+              <div className="flex items-end justify-between mb-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="font-bold" style={{ color: '#202124', fontSize: '48px', lineHeight: 1 }}>{latestScore}</span>
+                  <span className="text-lg font-normal" style={{ color: '#9aa0a6' }}>/100</span>
+                  {scoreDelta > 0 && (
+                    <span className="text-xs font-bold px-2 py-1 rounded-full" style={{ background: '#e6f4ea', color: '#188038' }}>
+                      +{scoreDelta} pts
+                    </span>
+                  )}
+                </div>
+                {/* Mini bar chart */}
+                <div className="flex items-end gap-1.5 h-10">
+                  {sessions.map((s, i) => (
+                    <div key={i} title={`Session ${s.session}: ${s.avgScore}`} className="w-2.5 rounded-sm transition-all"
+                      style={{
+                        height: `${Math.max(6, (s.avgScore / 100) * 40)}px`,
+                        background: i === sessions.length - 1 ? '#1a73e8' : '#e8eaed',
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-between text-xs" style={{ color: '#9aa0a6' }}>
+                <span>Session 1 — {firstScore}</span>
+                <span>Now — {latestScore}</span>
+              </div>
+              <p className="text-xs mt-2.5 leading-relaxed" style={{ color: '#9aa0a6' }}>
+                Every prompt — professional or personal — builds this score.
+              </p>
             </div>
-            <p className="text-xs mt-2 leading-relaxed" style={{ color: '#5858809' }}>
-              Every prompt — professional or personal — builds this score.
-            </p>
           </div>
 
-          {/* Next step */}
+          {/* Continue card */}
           {next && (() => {
             const remaining = (['cover','diagram','divider','extras'] as const).find(k => !next.progressStatus[k]);
-            const action = remaining ? `Next: ${remaining} visual` : 'All visuals complete';
+            const action = remaining ? `Next: create a ${remaining} visual` : 'All visuals complete';
+            const isPro = next.mode === 'professional';
             return (
-              <div className="px-5 pt-4">
-                <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: '#4a4a68', letterSpacing: '0.12em' }}>Continue</p>
+              <div className="px-5 mt-5">
+                <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: '#9aa0a6', letterSpacing: '0.1em' }}>Continue</p>
                 <div
-                  className="rounded-md px-4 py-3 cursor-pointer transition-all border"
-                  style={{ background: '#111120', borderColor: '#252538' }}
+                  className="rounded-xl border cursor-pointer transition-all"
+                  style={{ background: '#fff', borderColor: '#e0e0e0' }}
                   onClick={() => router.push(`/project/${next.id}`)}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#5b7af8'; (e.currentTarget as HTMLElement).style.background = '#14142a'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#252538'; (e.currentTarget as HTMLElement).style.background = '#111120'; }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.borderColor = '#1a73e8';
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 6px rgba(26,115,232,0.15)';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.borderColor = '#e0e0e0';
+                    (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                  }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-0.5 h-8 rounded-full shrink-0" style={{ background: next.mode === 'professional' ? '#4b8ef0' : '#f0a030' }} />
+                  <div className="flex items-center gap-4 px-4 py-3.5">
+                    <div className="w-1 h-10 rounded-full shrink-0" style={{ background: isPro ? '#1a73e8' : '#e8710a' }} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium tracking-tight truncate" style={{ color: '#ddddf0' }}>{next.title}</p>
-                      <p className="text-xs mt-0.5" style={{ color: '#6868a0' }}>{action} · {progressCount(next)}/4 done</p>
+                      <p className="text-sm font-semibold truncate" style={{ color: '#202124' }}>{next.title}</p>
+                      <p className="text-xs mt-0.5" style={{ color: '#9aa0a6' }}>{action} · {progressCount(next)}/4 done</p>
                     </div>
-                    <span className="text-sm shrink-0" style={{ color: '#5b7af8' }}>→</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ color: '#1a73e8', flexShrink: 0 }}>
+                      <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="px-4 pb-3 flex gap-1.5">
+                    {Object.entries(next.progressStatus).map(([key, done]) => (
+                      <div key={key} className="h-1 flex-1 rounded-full" style={{ background: done ? (isPro ? '#1a73e8' : '#e8710a') : '#e8eaed' }} />
+                    ))}
                   </div>
                 </div>
               </div>
             );
           })()}
 
-          {/* Projects list */}
-          <div className="px-5 mt-5 pb-4">
-            <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#4a4a68', letterSpacing: '0.12em' }}>
-              Projects
-            </p>
-            <div className="space-y-px">
+          {/* Project list */}
+          <div className="px-5 mt-5 pb-6">
+            <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#9aa0a6', letterSpacing: '0.1em' }}>Projects</p>
+            <div className="space-y-2">
               {projects.map(p => {
                 const isPro = p.mode === 'professional';
-                const done = progressCount(p);
                 return (
                   <div
                     key={p.id}
                     onClick={() => router.push(`/project/${p.id}`)}
-                    className="cursor-pointer rounded-md px-3 py-3 transition-all border"
-                    style={{ background: 'transparent', borderColor: 'transparent' }}
+                    className="rounded-xl border cursor-pointer transition-all"
+                    style={{ background: '#fff', borderColor: '#e0e0e0' }}
                     onMouseEnter={e => {
-                      (e.currentTarget as HTMLElement).style.background = '#111120';
-                      (e.currentTarget as HTMLElement).style.borderColor = '#252538';
+                      (e.currentTarget as HTMLElement).style.borderColor = '#dadce0';
+                      (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.08)';
                     }}
                     onMouseLeave={e => {
-                      (e.currentTarget as HTMLElement).style.background = 'transparent';
-                      (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
+                      (e.currentTarget as HTMLElement).style.borderColor = '#e0e0e0';
+                      (e.currentTarget as HTMLElement).style.boxShadow = 'none';
                     }}
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="w-0.5 min-h-[40px] rounded-full self-stretch shrink-0 mt-0.5" style={{ background: isPro ? '#4b8ef0' : '#f0a030' }} />
+                    <div className="flex items-center gap-3 px-4 pt-3 pb-2">
+                      <div className="w-1 h-8 rounded-full shrink-0" style={{ background: isPro ? '#1a73e8' : '#e8710a' }} />
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                          <p className="text-sm font-medium tracking-tight truncate" style={{ color: '#ddddf0' }}>{p.title}</p>
-                          <span className="text-xs shrink-0 font-semibold" style={{ color: isPro ? '#4b8ef0' : '#f0a030' }}>
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-semibold truncate" style={{ color: '#202124' }}>{p.title}</p>
+                          <span className="text-xs font-semibold shrink-0 px-2 py-0.5 rounded-full"
+                            style={{ background: isPro ? '#e8f0fe' : '#fce8d8', color: isPro ? '#1a73e8' : '#e8710a' }}>
                             {isPro ? 'Pro' : 'Personal'}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs" style={{ color: '#7878a0' }}>{CATEGORY_LABELS[p.category]}</span>
-                            {p.platform && <span className="text-xs" style={{ color: '#5050809' }}>· {p.platform === 'google-slides' ? 'Slides' : 'PPT'}</span>}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs" style={{ color: '#5050809' }}>{assetCounts[p.id] ?? 0} assets</span>
-                            <span className="text-xs" style={{ color: '#3a3a58' }}>·</span>
-                            <span className="text-xs" style={{ color: '#5050809' }}>{formatDate(p.updatedAt)}</span>
-                          </div>
-                        </div>
-                        {/* Progress pills */}
-                        <div className="flex gap-1">
-                          {Object.entries(p.progressStatus).map(([key, done_]) => (
-                            <div key={key} className="h-0.5 flex-1 rounded-full" style={{ background: done_ ? (isPro ? '#4b8ef0' : '#f0a030') : '#1e1e30' }} />
-                          ))}
+                        <div className="flex items-center justify-between mt-0.5">
+                          <span className="text-xs" style={{ color: '#9aa0a6' }}>
+                            {CATEGORY_LABELS[p.category]}{p.platform ? ` · ${p.platform === 'google-slides' ? 'Slides' : 'PPT'}` : ''}
+                          </span>
+                          <span className="text-xs" style={{ color: '#bdc1c6' }}>
+                            {assetCounts[p.id] ?? 0} assets · {formatDate(p.updatedAt)}
+                          </span>
                         </div>
                       </div>
+                    </div>
+                    <div className="px-4 pb-3 flex gap-1.5">
+                      {Object.entries(p.progressStatus).map(([key, done]) => (
+                        <div key={key} className="h-1 flex-1 rounded-full" style={{ background: done ? (isPro ? '#1a73e8' : '#e8710a') : '#e8eaed' }} />
+                      ))}
                     </div>
                   </div>
                 );
@@ -206,8 +214,8 @@ export default function Dashboard() {
 
           {projects.length === 0 && (
             <div className="px-5 py-16 text-center">
-              <p className="text-sm font-medium mb-1" style={{ color: '#6868a0' }}>No projects yet</p>
-              <p className="text-xs" style={{ color: '#3a3a58' }}>Create one to start building AI literacy</p>
+              <p className="text-sm font-medium mb-1" style={{ color: '#5f6368' }}>No projects yet</p>
+              <p className="text-xs" style={{ color: '#9aa0a6' }}>Create one to start building AI literacy</p>
             </div>
           )}
         </div>

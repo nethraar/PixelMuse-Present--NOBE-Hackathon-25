@@ -107,33 +107,33 @@ const CATEGORY_BRIEF: Record<string, string> = {
 
 function ScoreDisplay({ score, mode }: { score: PromptScore; mode: Mode }) {
   const isPro = mode === 'professional';
-  const barBg = isPro ? '#4b8ef0' : '#f0a030';
-  const scoreColor = score.overall >= 70 ? '#3eca7a' : score.overall >= 45 ? '#f0a030' : '#e87070';
+  const barBg = isPro ? '#1a73e8' : '#e8710a';
+  const scoreColor = score.overall >= 70 ? '#188038' : score.overall >= 45 ? '#e8710a' : '#d93025';
   return (
-    <div className="rounded-md overflow-hidden border" style={{ background: '#111120', borderColor: '#1e1e30' }}>
-      <div className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: '#1e1e30' }}>
+    <div className="rounded-xl overflow-hidden border" style={{ background: '#fff', borderColor: '#e0e0e0' }}>
+      <div className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: '#e0e0e0', background: '#f8f9fa' }}>
         <div>
-          <p className="text-sm font-semibold tracking-tight" style={{ color: '#ddddf0' }}>Prompt Score</p>
-          <p className="text-xs mt-0.5" style={{ color: '#6868a0' }}>AI literacy rating</p>
+          <p className="text-sm font-semibold" style={{ color: '#202124' }}>Prompt Score</p>
+          <p className="text-xs mt-0.5" style={{ color: '#9aa0a6' }}>AI literacy rating</p>
         </div>
         <div className="text-right">
-          <span className="font-bold text-3xl leading-none tracking-tight" style={{ color: scoreColor }}>{score.overall}</span>
-          <span className="text-sm ml-0.5" style={{ color: '#4a4a68' }}>/100</span>
+          <span className="font-bold text-3xl leading-none" style={{ color: scoreColor }}>{score.overall}</span>
+          <span className="text-sm ml-0.5" style={{ color: '#9aa0a6' }}>/100</span>
         </div>
       </div>
       <div className="px-4 py-3 space-y-2.5">
         {([['Specificity', score.specificity], ['Style', score.style], ['Context', score.context]] as [string, number][]).map(([label, val]) => (
           <div key={label} className="flex items-center gap-3">
-            <span className="text-xs w-20 shrink-0 font-medium" style={{ color: '#7878a0' }}>{label}</span>
-            <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: '#1e1e30' }}>
+            <span className="text-xs w-20 shrink-0 font-medium" style={{ color: '#5f6368' }}>{label}</span>
+            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: '#e8eaed' }}>
               <div className="h-full rounded-full transition-all duration-700" style={{ width: `${val}%`, background: barBg }} />
             </div>
             <span className="text-xs w-6 text-right font-bold tabular-nums" style={{ color: barBg }}>{val}</span>
           </div>
         ))}
-        <div className="pt-2 border-t flex items-start gap-2" style={{ borderColor: '#1e1e30' }}>
+        <div className="pt-2.5 border-t flex items-start gap-2" style={{ borderColor: '#e8eaed' }}>
           <span className="text-xs shrink-0 mt-0.5 font-bold" style={{ color: barBg }}>→</span>
-          <p className="text-xs leading-relaxed" style={{ color: '#9898bc' }}>{score.tip}</p>
+          <p className="text-xs leading-relaxed" style={{ color: '#5f6368' }}>{score.tip}</p>
         </div>
       </div>
     </div>
@@ -335,9 +335,9 @@ export default function ProjectPage() {
 
   const chips = mode === 'professional' ? PRO_CHIPS : PERSONAL_CHIPS;
   const isPro = mode === 'professional';
-  const modeColor = isPro ? '#4b8ef0' : '#f0a030';
-  const modeBg = isPro ? '#0d1a2e' : '#2a1800';
-  const modeBorder = isPro ? '#1a3050' : '#3a2200';
+  const modeColor = isPro ? '#1a73e8' : '#e8710a';
+  const modeBg = isPro ? '#e8f0fe' : '#fce8d8';
+  const modeBorder = isPro ? '#c5d8fb' : '#f5c9a0';
 
   if (!project) return null;
 
@@ -368,21 +368,21 @@ export default function ProjectPage() {
       onRequestUpload={() => fileInputRef.current?.click()}
       loadingSlides={loadingSlides}
     >
-      <div className="flex flex-col h-full">
-        {/* Sticky project header */}
-        <div className="px-4 pt-4 pb-3 border-b shrink-0" style={{ borderColor: '#1e1e30' }}>
+      <div className="flex flex-col h-full" style={{ background: '#fff' }}>
+        {/* Project header */}
+        <div className="px-4 pt-4 pb-3 border-b shrink-0" style={{ borderColor: '#e0e0e0' }}>
           <div className="flex items-start justify-between gap-2 mb-1">
-            <h2 className="text-sm font-semibold tracking-tight leading-tight" style={{ color: '#eeeef8' }}>{project.title}</h2>
-            <span className="text-xs px-2 py-0.5 rounded shrink-0 font-semibold" style={{ background: modeBg, color: modeColor, border: `1px solid ${modeBorder}` }}>
+            <h2 className="text-sm font-semibold leading-tight" style={{ color: '#202124' }}>{project.title}</h2>
+            <span className="text-xs px-2 py-0.5 rounded-full shrink-0 font-semibold" style={{ background: modeBg, color: modeColor }}>
               {isPro ? 'Pro' : 'Personal'}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs capitalize" style={{ color: '#7878a0' }}>{project.category}</span>
-            {project.platform && <span className="text-xs" style={{ color: '#5858809' }}>· {project.platform === 'google-slides' ? 'Google Slides' : 'PowerPoint'}</span>}
-            <span className="text-xs" style={{ color: '#4a4a68' }}>· {assets.length} assets</span>
+            <span className="text-xs capitalize" style={{ color: '#9aa0a6' }}>{project.category}</span>
+            {project.platform && <span className="text-xs" style={{ color: '#bdc1c6' }}>· {project.platform === 'google-slides' ? 'Google Slides' : 'PowerPoint'}</span>}
+            <span className="text-xs" style={{ color: '#bdc1c6' }}>· {assets.length} assets</span>
           </div>
-          {/* Progress tracker */}
+          {/* Progress pills */}
           <div className="flex gap-3 mt-2.5">
             {([['Cover','cover'],['Diagram','diagram'],['Divider','divider'],['Extras','extras']] as [string,keyof typeof project.progressStatus][]).map(([label, key]) => {
               const done = project.progressStatus[key];
@@ -392,8 +392,8 @@ export default function ProjectPage() {
                   saveProject(updated);
                   setProject(updated);
                 }} className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full transition-colors" style={{ background: done ? modeColor : '#252538' }} />
-                  <span className="text-xs font-medium" style={{ color: done ? modeColor : '#5050809' }}>{label}</span>
+                  <div className="w-1.5 h-1.5 rounded-full transition-colors" style={{ background: done ? modeColor : '#dadce0' }} />
+                  <span className="text-xs font-medium" style={{ color: done ? modeColor : '#9aa0a6' }}>{label}</span>
                 </button>
               );
             })}
@@ -401,34 +401,35 @@ export default function ProjectPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b shrink-0" style={{ borderColor: '#1e1e30' }}>
+        <div className="flex border-b shrink-0" style={{ borderColor: '#e0e0e0' }}>
           {(['generate','assets','brief','export'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)}
-              className="flex-1 py-2 text-xs font-semibold capitalize transition-colors"
+              className="flex-1 py-2.5 text-xs font-semibold capitalize transition-colors"
               style={{
-                color: tab === t ? '#eeeef8' : '#5858809',
+                color: tab === t ? modeColor : '#9aa0a6',
                 borderBottom: tab === t ? `2px solid ${modeColor}` : '2px solid transparent',
+                background: '#fff',
               }}
-              onMouseEnter={e => { if (tab !== t) (e.currentTarget as HTMLElement).style.color = '#9898bc'; }}
-              onMouseLeave={e => { if (tab !== t) (e.currentTarget as HTMLElement).style.color = '#5858809'; }}
+              onMouseEnter={e => { if (tab !== t) (e.currentTarget as HTMLElement).style.color = '#5f6368'; }}
+              onMouseLeave={e => { if (tab !== t) (e.currentTarget as HTMLElement).style.color = '#9aa0a6'; }}
             >
               {t}
             </button>
           ))}
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ background: '#f8f9fa' }}>
           {/* GENERATE TAB */}
           {tab === 'generate' && (
             <>
               {/* Mode toggle */}
-              <div className="flex rounded-md p-1 gap-1 border" style={{ background: '#111120', borderColor: '#1e1e30' }}>
+              <div className="flex rounded-lg p-1 gap-1 border" style={{ background: '#fff', borderColor: '#e0e0e0' }}>
                 {(['professional','personal'] as Mode[]).map(m => (
                   <button key={m} onClick={() => setMode(m)}
-                    className="flex-1 py-1.5 rounded text-xs font-semibold transition-all"
+                    className="flex-1 py-2 rounded-md text-xs font-semibold transition-all"
                     style={{
-                      background: mode === m ? (m === 'professional' ? '#4b8ef0' : '#f0a030') : 'transparent',
-                      color: mode === m ? '#fff' : '#7878a0',
+                      background: mode === m ? (m === 'professional' ? '#1a73e8' : '#e8710a') : 'transparent',
+                      color: mode === m ? '#fff' : '#9aa0a6',
                     }}
                   >
                     {m === 'professional' ? 'Professional' : 'Personal'}
@@ -439,29 +440,31 @@ export default function ProjectPage() {
               {/* Icon mode toggle */}
               <button
                 onClick={() => setIconMode(v => !v)}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-md border transition-all text-xs font-medium"
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg border transition-all"
                 style={{
-                  background: iconMode ? '#0d1a2e' : '#111120',
-                  borderColor: iconMode ? '#4b8ef0' : '#1e1e30',
-                  color: iconMode ? '#7ab0f0' : '#7878a0',
+                  background: '#fff',
+                  borderColor: iconMode ? modeColor : '#e0e0e0',
+                  color: iconMode ? modeColor : '#5f6368',
                 }}
+                onMouseEnter={e => { if (!iconMode) (e.currentTarget as HTMLElement).style.borderColor = '#dadce0'; }}
+                onMouseLeave={e => { if (!iconMode) (e.currentTarget as HTMLElement).style.borderColor = '#e0e0e0'; }}
               >
-                <span>Icon / Symbol mode</span>
-                <span className="text-xs px-2 py-0.5 rounded font-semibold" style={{ background: iconMode ? '#1a3050' : '#1c1c2e', color: iconMode ? '#7ab0f0' : '#5858809' }}>
+                <span className="text-sm font-medium">Icon / Symbol mode</span>
+                <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: iconMode ? modeBg : '#f1f3f4', color: iconMode ? modeColor : '#9aa0a6' }}>
                   {iconMode ? 'ON' : 'OFF'}
                 </span>
               </button>
 
-              {/* Suggestion chips */}
+              {/* Chips */}
               <div>
-                <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: '#4a4a68', letterSpacing: '0.1em' }}>Quick starts</p>
+                <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#9aa0a6', letterSpacing: '0.1em' }}>Quick starts</p>
                 <div className="flex flex-wrap gap-1.5">
                   {chips.map(chip => (
                     <button key={chip} onClick={() => setPrompt(chip)}
-                      className="text-xs px-2.5 py-1 rounded transition-all border"
-                      style={{ background: '#111120', borderColor: '#1e1e30', color: '#7878a0' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#c8c8e8'; (e.currentTarget as HTMLElement).style.borderColor = '#252538'; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#7878a0'; (e.currentTarget as HTMLElement).style.borderColor = '#1e1e30'; }}
+                      className="text-xs px-2.5 py-1 rounded-full border transition-all"
+                      style={{ background: '#fff', borderColor: '#dadce0', color: '#5f6368' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = modeColor; (e.currentTarget as HTMLElement).style.color = modeColor; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#dadce0'; (e.currentTarget as HTMLElement).style.color = '#5f6368'; }}
                     >
                       {chip}
                     </button>
@@ -469,11 +472,11 @@ export default function ProjectPage() {
                 </div>
               </div>
 
-              {/* Prompt input */}
+              {/* Prompt */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#4a4a68', letterSpacing: '0.1em' }}>Prompt</p>
-                  <span className="text-xs" style={{ color: '#4a4a68' }}>{prompt.length} chars</span>
+                  <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#9aa0a6', letterSpacing: '0.1em' }}>Your prompt</p>
+                  <span className="text-xs" style={{ color: '#bdc1c6' }}>{prompt.length} chars</span>
                 </div>
                 <textarea
                   value={prompt}
@@ -481,24 +484,26 @@ export default function ProjectPage() {
                   onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleGenerate(); }}
                   placeholder={isPro ? 'Describe your presentation visual...' : 'Describe your fun image...'}
                   rows={3}
-                  className="w-full rounded-md px-3 py-2.5 text-sm focus:outline-none resize-none transition-colors border"
+                  className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none resize-none transition-all border"
                   style={{
-                    background: '#0a0a14',
-                    color: '#ddddf0',
-                    borderColor: '#1e1e30',
+                    background: '#fff',
+                    color: '#202124',
+                    borderColor: '#dadce0',
                     caretColor: modeColor,
                   }}
-                  onFocus={e => { (e.currentTarget as HTMLElement).style.borderColor = modeColor; }}
-                  onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = '#1e1e30'; }}
+                  onFocus={e => { (e.currentTarget as HTMLElement).style.borderColor = modeColor; (e.currentTarget as HTMLElement).style.boxShadow = `0 0 0 3px ${modeBg}`; }}
+                  onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = '#dadce0'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
                 />
-                <p className="text-xs mt-1" style={{ color: '#3a3a58' }}>⌘↩ to generate</p>
+                <p className="text-xs mt-1" style={{ color: '#bdc1c6' }}>⌘↩ to generate</p>
               </div>
 
               <button
                 onClick={handleGenerate}
                 disabled={generating || !prompt.trim()}
-                className="w-full font-semibold py-2.5 rounded-md text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full font-semibold py-2.5 rounded-lg text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
                 style={{ background: modeColor, color: '#fff' }}
+                onMouseEnter={e => { if (!generating && prompt.trim()) (e.currentTarget as HTMLElement).style.opacity = '0.9'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
               >
                 {generating ? (
                   <>
@@ -511,54 +516,54 @@ export default function ProjectPage() {
               </button>
 
               {genError && (
-                <div className="rounded-md border px-4 py-3 text-center" style={{ background: '#1a0e0e', borderColor: '#3a1a1a' }}>
-                  <p className="text-sm font-semibold" style={{ color: '#e87070' }}>Generation failed</p>
-                  <p className="text-xs mt-1" style={{ color: '#905050' }}>Image service timed out. Try a simpler prompt or retry.</p>
-                  <button onClick={handleGenerate} className="mt-2 text-xs underline" style={{ color: '#e87070' }}>Retry</button>
+                <div className="rounded-lg border px-4 py-3 text-center" style={{ background: '#fce8e6', borderColor: '#fad2cf' }}>
+                  <p className="text-sm font-semibold" style={{ color: '#d93025' }}>Generation failed</p>
+                  <p className="text-xs mt-1" style={{ color: '#c5221f' }}>Image service timed out. Try a simpler prompt or retry.</p>
+                  <button onClick={handleGenerate} className="mt-2 text-xs underline font-medium" style={{ color: '#d93025' }}>Retry</button>
                 </div>
               )}
 
               {generatedUrl && (
-                <div className="space-y-3 pt-1">
-                  <div className="rounded-md overflow-hidden border" style={{ borderColor: '#1e1e30' }}>
+                <div className="space-y-3">
+                  <div className="rounded-xl overflow-hidden border shadow-sm" style={{ borderColor: '#e0e0e0', background: '#fff' }}>
                     <img src={generatedUrl} alt="Generated" className="w-full object-cover" />
-                    <div className="px-3 py-2.5 space-y-2" style={{ background: '#111120' }}>
+                    <div className="px-3 py-3 space-y-2.5">
                       <div className="flex gap-2">
                         <button
                           onClick={handleSave}
                           disabled={saved}
-                          className="flex-1 text-xs font-semibold py-2 rounded-md transition-colors"
-                          style={{ background: saved ? '#161628' : '#0d2a1a', color: saved ? '#5858809' : '#3eca7a', border: `1px solid ${saved ? '#1e1e30' : '#1a4030'}` }}
+                          className="flex-1 text-xs font-semibold py-2 rounded-lg transition-colors"
+                          style={{ background: saved ? '#f1f3f4' : '#e6f4ea', color: saved ? '#9aa0a6' : '#188038', border: `1px solid ${saved ? '#e0e0e0' : '#ceead6'}` }}
                         >
                           {saved ? '✓ Saved' : '↓ Save to Project'}
                         </button>
                         <button
                           onClick={placeOnSlide}
                           disabled={placed || removingBg}
-                          className="flex-1 text-xs font-semibold py-2 rounded-md transition-all disabled:opacity-60"
-                          style={{ background: placed ? '#161628' : modeBg, color: placed ? '#5858809' : modeColor, border: `1px solid ${placed ? '#1e1e30' : modeBorder}` }}
+                          className="flex-1 text-xs font-semibold py-2 rounded-lg transition-all disabled:opacity-60"
+                          style={{ background: placed ? '#f1f3f4' : modeBg, color: placed ? '#9aa0a6' : modeColor, border: `1px solid ${placed ? '#e0e0e0' : modeBorder}` }}
                         >
                           {removingBg ? 'Removing BG…' : placed ? '✓ On Slide' : '⊞ Place on Slide'}
                         </button>
                         <button
                           onClick={() => { setPrompt(''); setGeneratedUrl(null); setScore(null); setSaved(false); setPlaced(false); }}
-                          className="px-3 py-2 rounded-md text-xs transition-colors"
-                          style={{ background: '#161628', color: '#6868a0', border: '1px solid #1e1e30' }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#1c1c2e'; }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#161628'; }}
+                          className="px-3 py-2 rounded-lg text-xs font-medium transition-colors border"
+                          style={{ background: '#fff', color: '#9aa0a6', borderColor: '#e0e0e0' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#f1f3f4'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#fff'; }}
                         >
                           ✕
                         </button>
                       </div>
-                      <p className="text-xs text-center" style={{ color: '#4a4a68' }}>Place on Slide → drag &amp; resize on canvas</p>
+                      <p className="text-xs text-center" style={{ color: '#bdc1c6' }}>Place on Slide → drag &amp; resize on canvas</p>
                     </div>
                   </div>
                   {score && <ScoreDisplay score={score} mode={mode} />}
                   {!score && generating === false && (
-                    <div className="rounded-md border px-4 py-3" style={{ background: '#111120', borderColor: '#1e1e30' }}>
+                    <div className="rounded-lg border px-4 py-3" style={{ background: '#fff', borderColor: '#e0e0e0' }}>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 border-2 rounded-full animate-spin" style={{ borderColor: '#252538', borderTopColor: '#5b7af8' }} />
-                        <span className="text-xs" style={{ color: '#7878a0' }}>Scoring your prompt…</span>
+                        <div className="w-3 h-3 border-2 rounded-full animate-spin" style={{ borderColor: '#e8f0fe', borderTopColor: '#1a73e8' }} />
+                        <span className="text-xs" style={{ color: '#9aa0a6' }}>Scoring your prompt…</span>
                       </div>
                     </div>
                   )}
@@ -570,33 +575,33 @@ export default function ProjectPage() {
           {/* ASSETS TAB */}
           {tab === 'assets' && (
             <>
-              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#4a4a68', letterSpacing: '0.1em' }}>
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#9aa0a6', letterSpacing: '0.1em' }}>
                 {assets.length} saved visual{assets.length !== 1 ? 's' : ''}
               </p>
               {assets.length === 0 ? (
-                <div className="text-center py-10">
-                  <p className="text-sm font-medium mb-1" style={{ color: '#6868a0' }}>No saved assets yet</p>
-                  <p className="text-xs" style={{ color: '#3a3a58' }}>Generate and save visuals first.</p>
+                <div className="text-center py-10 bg-white rounded-xl border" style={{ borderColor: '#e0e0e0' }}>
+                  <p className="text-sm font-medium mb-1" style={{ color: '#5f6368' }}>No saved assets yet</p>
+                  <p className="text-xs" style={{ color: '#9aa0a6' }}>Generate and save visuals first.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2">
                   {assets.map(a => (
-                    <div key={a.id} className="rounded-md overflow-hidden border" style={{ background: '#111120', borderColor: '#1e1e30' }}>
+                    <div key={a.id} className="rounded-xl overflow-hidden border shadow-sm" style={{ background: '#fff', borderColor: '#e0e0e0' }}>
                       <img src={a.url} alt={a.prompt} className="w-full aspect-video object-cover" />
-                      <div className="p-2 space-y-1.5">
-                        <p className="text-xs leading-tight line-clamp-2" style={{ color: '#9898bc' }}>{a.prompt}</p>
+                      <div className="p-2.5 space-y-1.5">
+                        <p className="text-xs leading-tight line-clamp-2" style={{ color: '#5f6368' }}>{a.prompt}</p>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-semibold" style={{ color: a.mode === 'professional' ? '#4b8ef0' : '#f0a030' }}>
+                          <span className="text-xs font-semibold" style={{ color: a.mode === 'professional' ? '#1a73e8' : '#e8710a' }}>
                             {a.mode === 'professional' ? 'Pro' : 'Personal'}
                           </span>
-                          <span className="text-xs font-bold tabular-nums" style={{ color: a.mode === 'professional' ? '#4b8ef0' : '#f0a030' }}>{a.promptScore.overall}</span>
+                          <span className="text-xs font-bold tabular-nums" style={{ color: a.mode === 'professional' ? '#1a73e8' : '#e8710a' }}>{a.promptScore.overall}</span>
                         </div>
                         <button
                           onClick={() => { setPrompt(a.prompt); setMode(a.mode); setTab('generate'); }}
-                          className="w-full text-xs text-left transition-colors"
-                          style={{ color: '#6868a0' }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#9898bc'; }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#6868a0'; }}
+                          className="w-full text-xs text-left font-medium transition-colors"
+                          style={{ color: '#9aa0a6' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = modeColor; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#9aa0a6'; }}
                         >
                           ↺ Reuse style
                         </button>
@@ -611,20 +616,20 @@ export default function ProjectPage() {
           {/* BRIEF TAB */}
           {tab === 'brief' && (
             <div className="space-y-3">
-              <div className="rounded-md px-4 py-3 border" style={{ background: '#111120', borderColor: '#1e1e30', borderLeft: `3px solid ${modeColor}` }}>
+              <div className="rounded-xl px-4 py-3 border" style={{ background: '#fff', borderColor: '#e0e0e0', borderLeft: `3px solid ${modeColor}` }}>
                 <p className="text-xs font-semibold mb-1" style={{ color: modeColor }}>
                   {isPro ? 'Professional Mode' : 'Personal Mode'}
                 </p>
-                <p className="text-xs leading-relaxed" style={{ color: '#8888a8' }}>
+                <p className="text-xs leading-relaxed" style={{ color: '#5f6368' }}>
                   {isPro
                     ? 'Clean, slide-ready visuals for presentations. Prompts tuned for clarity, minimal design, and professional context.'
                     : 'Fun, expressive visuals for personal use. Prompts tuned for creativity, humor, and shareability.'}
                 </p>
               </div>
 
-              <div className="rounded-md border overflow-hidden" style={{ background: '#111120', borderColor: '#1e1e30' }}>
-                <div className="px-4 py-3 border-b" style={{ borderColor: '#1e1e30' }}>
-                  <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#4a4a68', letterSpacing: '0.1em' }}>Project Details</p>
+              <div className="rounded-xl border overflow-hidden" style={{ background: '#fff', borderColor: '#e0e0e0' }}>
+                <div className="px-4 py-3 border-b" style={{ borderColor: '#e0e0e0', background: '#f8f9fa' }}>
+                  <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#9aa0a6', letterSpacing: '0.1em' }}>Project Details</p>
                 </div>
                 <div className="px-4 py-3 space-y-2.5">
                   {[
@@ -637,16 +642,16 @@ export default function ProjectPage() {
                     ['Assets saved', `${assets.length} visual${assets.length !== 1 ? 's' : ''}`],
                   ].map(([label, value]) => (
                     <div key={label} className="flex gap-3">
-                      <span className="text-xs w-24 shrink-0 font-medium" style={{ color: '#6868a0' }}>{label}</span>
-                      <span className="text-xs leading-relaxed" style={{ color: '#9898bc' }}>{value}</span>
+                      <span className="text-xs w-24 shrink-0 font-medium" style={{ color: '#9aa0a6' }}>{label}</span>
+                      <span className="text-xs leading-relaxed" style={{ color: '#5f6368' }}>{value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="rounded-md border overflow-hidden" style={{ background: '#111120', borderColor: '#1e1e30' }}>
-                <div className="px-4 py-3 border-b" style={{ borderColor: '#1e1e30' }}>
-                  <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#4a4a68', letterSpacing: '0.1em' }}>Visual Checklist</p>
+              <div className="rounded-xl border overflow-hidden" style={{ background: '#fff', borderColor: '#e0e0e0' }}>
+                <div className="px-4 py-3 border-b" style={{ borderColor: '#e0e0e0', background: '#f8f9fa' }}>
+                  <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#9aa0a6', letterSpacing: '0.1em' }}>Visual Checklist</p>
                 </div>
                 <div className="px-4 py-1">
                   {([['Cover', 'cover'], ['Diagram', 'diagram'], ['Section Divider', 'divider'], ['Extras', 'extras']] as [string, keyof typeof project.progressStatus][]).map(([label, key]) => (
@@ -654,17 +659,14 @@ export default function ProjectPage() {
                       const updated = { ...project, progressStatus: { ...project.progressStatus, [key]: !project.progressStatus[key] } };
                       saveProject(updated);
                       setProject(updated);
-                    }} className="w-full flex items-center gap-3 py-2.5 border-b last:border-0 transition-all group"
-                    style={{ borderColor: '#1a1a2e' }}>
-                      <div className="w-3.5 h-3.5 rounded-sm border flex items-center justify-center shrink-0 transition-colors"
-                        style={{
-                          background: project.progressStatus[key] ? modeColor : 'transparent',
-                          borderColor: project.progressStatus[key] ? modeColor : '#252538',
-                        }}>
+                    }} className="w-full flex items-center gap-3 py-3 border-b last:border-0 transition-colors group"
+                    style={{ borderColor: '#f1f3f4' }}>
+                      <div className="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors"
+                        style={{ background: project.progressStatus[key] ? modeColor : '#fff', borderColor: project.progressStatus[key] ? modeColor : '#dadce0' }}>
                         {project.progressStatus[key] && <span className="text-white font-bold" style={{ fontSize: '9px' }}>✓</span>}
                       </div>
-                      <span className="text-xs font-medium transition-colors" style={{
-                        color: project.progressStatus[key] ? '#5858809' : '#9898bc',
+                      <span className="text-sm font-medium transition-colors" style={{
+                        color: project.progressStatus[key] ? '#9aa0a6' : '#202124',
                         textDecoration: project.progressStatus[key] ? 'line-through' : 'none'
                       }}>{label} visual</span>
                     </button>
@@ -677,46 +679,46 @@ export default function ProjectPage() {
           {/* EXPORT TAB */}
           {tab === 'export' && (
             <div className="space-y-3">
-              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#4a4a68', letterSpacing: '0.1em' }}>
-                {assets.length} asset{assets.length !== 1 ? 's' : ''} ready
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#9aa0a6', letterSpacing: '0.1em' }}>
+                {assets.length} asset{assets.length !== 1 ? 's' : ''} ready to export
               </p>
 
               <button onClick={handleShareLink}
-                className="w-full font-semibold py-2.5 rounded-md text-sm transition-all"
-                style={{ background: '#5b7af8', color: '#fff' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#6f8cff'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#5b7af8'; }}
+                className="w-full font-semibold py-2.5 rounded-lg text-sm transition-all shadow-sm"
+                style={{ background: '#1a73e8', color: '#fff' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#1557b0'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#1a73e8'; }}
               >
                 {copied ? '✓ Link Copied!' : '↗ Share Project Link'}
               </button>
-              <p className="text-xs text-center" style={{ color: '#4a4a68' }}>Prompts recipient to start their own project</p>
+              <p className="text-xs text-center" style={{ color: '#9aa0a6' }}>Prompts recipient to start their own project</p>
 
-              <div className="pt-1 space-y-2">
+              <div className="space-y-2">
                 <button
                   onClick={() => alert('Google Slides integration — coming in v2. Download PNGs and insert manually for now.')}
-                  className="w-full font-medium py-2 rounded-md text-sm transition-colors border"
-                  style={{ background: '#0d1a2e', borderColor: '#1a3050', color: '#7ab0f0' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#101e38'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#0d1a2e'; }}
+                  className="w-full font-medium py-2.5 rounded-lg text-sm transition-colors border"
+                  style={{ background: '#fff', borderColor: '#dadce0', color: '#444746' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#f1f3f4'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#fff'; }}
                 >
                   Send to Google Slides
                 </button>
                 <button
                   onClick={() => alert('PowerPoint integration — coming in v2. Download PNGs and insert manually for now.')}
-                  className="w-full font-medium py-2 rounded-md text-sm transition-colors border"
-                  style={{ background: '#0d1a2e', borderColor: '#1a3050', color: '#7ab0f0' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#101e38'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#0d1a2e'; }}
+                  className="w-full font-medium py-2.5 rounded-lg text-sm transition-colors border"
+                  style={{ background: '#fff', borderColor: '#dadce0', color: '#444746' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#f1f3f4'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#fff'; }}
                 >
                   Export to PowerPoint
                 </button>
                 <button
                   onClick={handleDownload}
                   disabled={assets.length === 0 || downloading}
-                  className="w-full font-medium py-2 rounded-md text-sm transition-colors border disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ background: '#161628', borderColor: '#252538', color: '#c8c8e8' }}
-                  onMouseEnter={e => { if (!downloading && assets.length > 0) (e.currentTarget as HTMLElement).style.background = '#1c1c30'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#161628'; }}
+                  className="w-full font-medium py-2.5 rounded-lg text-sm transition-colors border disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: '#fff', borderColor: '#dadce0', color: '#444746' }}
+                  onMouseEnter={e => { if (!downloading && assets.length > 0) (e.currentTarget as HTMLElement).style.background = '#f1f3f4'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#fff'; }}
                 >
                   {downloading ? 'Downloading…' : `↓ Download ${assets.length} PNG Asset${assets.length !== 1 ? 's' : ''}`}
                 </button>
