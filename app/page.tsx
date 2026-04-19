@@ -25,10 +25,22 @@ export default function Dashboard() {
   const [sessions, setSessions] = useState<SessionScore[]>([]);
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    initData();
+  function refresh() {
     setProjects(getProjects());
     setSessions(getSessions());
+  }
+
+  useEffect(() => {
+    initData();
+    refresh();
+    window.addEventListener('focus', refresh);
+    window.addEventListener('storage', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      window.removeEventListener('focus', refresh);
+      window.removeEventListener('storage', refresh);
+      document.removeEventListener('visibilitychange', refresh);
+    };
   }, []);
 
   const latestScore = sessions.length ? sessions[sessions.length - 1].avgScore : 0;

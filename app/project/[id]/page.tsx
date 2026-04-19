@@ -137,7 +137,7 @@ export default function ProjectPage() {
       <div className="flex flex-col h-full">
         {/* Project header */}
         <div className="px-4 pt-3 pb-2 border-b border-gray-800">
-          <button onClick={() => router.push('/')} className="text-gray-500 hover:text-gray-300 text-xs mb-1 flex items-center gap-1">
+          <button onClick={() => { window.dispatchEvent(new Event('storage')); router.push('/'); }} className="text-gray-500 hover:text-gray-300 text-xs mb-1 flex items-center gap-1">
             ← Dashboard
           </button>
           <h2 className="text-white font-semibold text-sm leading-tight">{project.title}</h2>
