@@ -107,35 +107,33 @@ const CATEGORY_BRIEF: Record<string, string> = {
 
 function ScoreDisplay({ score, mode }: { score: PromptScore; mode: Mode }) {
   const isPro = mode === 'professional';
-  const barColor = isPro ? 'bg-blue-500' : 'bg-amber-500';
-  const textAccent = isPro ? 'text-blue-400' : 'text-amber-400';
-  const bgAccent = isPro ? 'bg-blue-950 border-blue-900' : 'bg-amber-950 border-amber-900';
-  const scoreColor = score.overall >= 70 ? 'text-green-400' : score.overall >= 45 ? 'text-yellow-400' : 'text-red-400';
+  const barBg = isPro ? '#3b82f6' : '#f59e0b';
+  const scoreColor = score.overall >= 70 ? '#3d9970' : score.overall >= 45 ? '#d4900a' : '#c05050';
   return (
-    <div className="rounded-xl border border-gray-700 overflow-hidden" style={{ background: '#111118' }}>
-      <div className={`px-4 py-3 flex items-center justify-between border-b border-gray-800 ${bgAccent}`}>
+    <div className="rounded-md overflow-hidden border" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
+      <div className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: '#1e1e2a', background: '#12121e' }}>
         <div>
-          <p className="text-white font-semibold text-sm">Prompt Quality Score</p>
-          <p className="text-gray-500 text-xs mt-0.5">Your AI literacy rating</p>
+          <p className="text-sm font-semibold tracking-tight" style={{ color: '#d0d0e8' }}>Prompt Score</p>
+          <p className="text-xs mt-0.5" style={{ color: '#33334a' }}>AI literacy rating</p>
         </div>
         <div className="text-right">
-          <span className={`font-bold text-2xl leading-none ${scoreColor}`}>{score.overall}</span>
-          <span className="text-gray-500 text-sm">/100</span>
+          <span className="font-bold text-3xl leading-none tracking-tight" style={{ color: scoreColor }}>{score.overall}</span>
+          <span className="text-sm ml-0.5" style={{ color: '#33334a' }}>/100</span>
         </div>
       </div>
       <div className="px-4 py-3 space-y-2.5">
         {([['Specificity', score.specificity], ['Style', score.style], ['Context', score.context]] as [string, number][]).map(([label, val]) => (
           <div key={label} className="flex items-center gap-3">
-            <span className="text-gray-400 text-xs w-20 shrink-0">{label}</span>
-            <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
-              <div className={`h-full ${barColor} rounded-full transition-all duration-700`} style={{ width: `${val}%` }} />
+            <span className="text-xs w-20 shrink-0" style={{ color: '#44445a' }}>{label}</span>
+            <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: '#1e1e2a' }}>
+              <div className="h-full rounded-full transition-all duration-700" style={{ width: `${val}%`, background: barBg }} />
             </div>
-            <span className={`text-xs w-7 text-right font-medium ${textAccent}`}>{val}</span>
+            <span className="text-xs w-6 text-right font-medium tabular-nums" style={{ color: isPro ? '#6090d0' : '#c09040' }}>{val}</span>
           </div>
         ))}
-        <div className={`mt-1 pt-2 border-t border-gray-800 flex items-start gap-2`}>
-          <span className="text-sm shrink-0 mt-0.5">💡</span>
-          <p className={`text-xs leading-relaxed ${isPro ? 'text-blue-300' : 'text-amber-300'}`}>{score.tip}</p>
+        <div className="pt-2 border-t flex items-start gap-2" style={{ borderColor: '#1a1a26' }}>
+          <span className="text-xs shrink-0 mt-0.5" style={{ color: '#44445a' }}>→</span>
+          <p className="text-xs leading-relaxed" style={{ color: isPro ? '#7090c8' : '#b08040' }}>{score.tip}</p>
         </div>
       </div>
     </div>
@@ -337,8 +335,6 @@ export default function ProjectPage() {
 
   const chips = mode === 'professional' ? PRO_CHIPS : PERSONAL_CHIPS;
   const isPro = mode === 'professional';
-  const modeAccent = isPro ? 'bg-blue-600 hover:bg-blue-500' : 'bg-amber-500 hover:bg-amber-400';
-  const modeChipBorder = isPro ? 'border-blue-900 hover:border-blue-700' : 'border-amber-900 hover:border-amber-700';
 
   if (!project) return null;
 
@@ -371,26 +367,29 @@ export default function ProjectPage() {
     >
       <div className="flex flex-col h-full">
         {/* Project header */}
-        <div className="px-4 pt-3 pb-2 border-b border-gray-800">
+        <div className="px-4 pt-3 pb-3 border-b" style={{ borderColor: '#1e1e2a' }}>
           <button
             onClick={() => { window.dispatchEvent(new Event('storage')); router.push('/'); }}
-            className="text-gray-500 hover:text-gray-300 text-xs mb-1 flex items-center gap-1"
+            className="flex items-center gap-1 text-xs mb-2 transition-colors"
+            style={{ color: '#33334a' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#9090a8'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#33334a'; }}
           >
             ← Dashboard
           </button>
           <div className="flex items-start justify-between gap-2">
-            <h2 className="text-white font-semibold text-sm leading-tight">{project.title}</h2>
-            <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 font-medium ${isPro ? 'bg-blue-900 text-blue-300' : 'bg-amber-900 text-amber-300'}`}>
-              {isPro ? '🎓 Pro' : '🎉 Personal'}
+            <h2 className="text-sm font-semibold tracking-tight leading-tight" style={{ color: '#f0f0f8' }}>{project.title}</h2>
+            <span className="text-xs px-2 py-0.5 rounded shrink-0 font-medium" style={{ background: isPro ? '#0d1a2e' : '#2a1a00', color: isPro ? '#6090d0' : '#c09040', border: `1px solid ${isPro ? '#1a3050' : '#3a2500'}` }}>
+              {isPro ? 'Pro' : 'Personal'}
             </span>
           </div>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-gray-500 text-xs capitalize">{project.category}</span>
-            {project.platform && <span className="text-gray-600 text-xs">· {project.platform === 'google-slides' ? 'Google Slides' : 'PowerPoint'}</span>}
-            <span className="text-gray-700 text-xs">· {assets.length} assets</span>
+            <span className="text-xs capitalize" style={{ color: '#33334a' }}>{project.category}</span>
+            {project.platform && <span className="text-xs" style={{ color: '#2a2a3a' }}>· {project.platform === 'google-slides' ? 'Google Slides' : 'PowerPoint'}</span>}
+            <span className="text-xs" style={{ color: '#22222e' }}>· {assets.length} assets</span>
           </div>
           {/* Progress tracker */}
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-3 mt-2.5">
             {([['Cover','cover'],['Diagram','diagram'],['Divider','divider'],['Extras','extras']] as [string,keyof typeof project.progressStatus][]).map(([label, key]) => {
               const done = project.progressStatus[key];
               return (
@@ -398,9 +397,9 @@ export default function ProjectPage() {
                   const updated = { ...project, progressStatus: { ...project.progressStatus, [key]: !done } };
                   saveProject(updated);
                   setProject(updated);
-                }} className="flex items-center gap-1 group">
-                  <div className={`w-2 h-2 rounded-full transition-colors ${done ? isPro ? 'bg-blue-500' : 'bg-amber-500' : 'bg-gray-700 group-hover:bg-gray-500'}`} />
-                  <span className={`text-xs transition-colors ${done ? isPro ? 'text-blue-400' : 'text-amber-400' : 'text-gray-500 group-hover:text-gray-400'}`}>{label}</span>
+                }} className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full transition-colors" style={{ background: done ? (isPro ? '#3b82f6' : '#f59e0b') : '#2a2a3a' }} />
+                  <span className="text-xs" style={{ color: done ? (isPro ? '#6090d0' : '#c09040') : '#33334a' }}>{label}</span>
                 </button>
               );
             })}
@@ -408,10 +407,17 @@ export default function ProjectPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-800">
+        <div className="flex border-b shrink-0" style={{ borderColor: '#1e1e2a' }}>
           {(['generate','assets','brief','export'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)}
-              className={`flex-1 py-2 text-xs font-medium capitalize transition-colors ${tab === t ? `${isPro ? 'text-blue-400 border-b-2 border-blue-500' : 'text-amber-400 border-b-2 border-amber-500'}` : 'text-gray-500 hover:text-gray-300'}`}>
+              className="flex-1 py-2 text-xs font-medium capitalize transition-colors"
+              style={{
+                color: tab === t ? '#f0f0f8' : '#44445a',
+                borderBottom: tab === t ? `2px solid ${isPro ? '#3b82f6' : '#f59e0b'}` : '2px solid transparent',
+              }}
+              onMouseEnter={e => { if (tab !== t) (e.currentTarget as HTMLElement).style.color = '#9090a8'; }}
+              onMouseLeave={e => { if (tab !== t) (e.currentTarget as HTMLElement).style.color = '#44445a'; }}
+            >
               {t}
             </button>
           ))}
@@ -422,11 +428,16 @@ export default function ProjectPage() {
           {tab === 'generate' && (
             <>
               {/* Mode toggle */}
-              <div className="flex bg-gray-900 rounded-lg p-1 gap-1">
+              <div className="flex rounded-md p-1 gap-1 border" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
                 {(['professional','personal'] as Mode[]).map(m => (
                   <button key={m} onClick={() => setMode(m)}
-                    className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-colors ${mode === m ? m === 'professional' ? 'bg-blue-600 text-white' : 'bg-amber-500 text-white' : 'text-gray-400 hover:text-gray-200'}`}>
-                    {m === 'professional' ? '🎓 Professional' : '🎉 Personal'}
+                    className="flex-1 py-1.5 rounded text-xs font-medium transition-all"
+                    style={{
+                      background: mode === m ? (m === 'professional' ? '#3b82f6' : '#f59e0b') : 'transparent',
+                      color: mode === m ? '#fff' : '#44445a',
+                    }}
+                  >
+                    {m === 'professional' ? 'Professional' : 'Personal'}
                   </button>
                 ))}
               </div>
@@ -434,25 +445,32 @@ export default function ProjectPage() {
               {/* Icon mode toggle */}
               <button
                 onClick={() => setIconMode(v => !v)}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border transition-colors text-sm font-medium ${iconMode ? 'bg-violet-950 border-violet-700 text-violet-200' : 'border-gray-800 text-gray-400 hover:border-gray-700'}`}
-                style={{ background: iconMode ? undefined : '#111118' }}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-md border transition-all text-xs font-medium"
+                style={{
+                  background: iconMode ? '#0e1520' : '#0e0e18',
+                  borderColor: iconMode ? '#1a3050' : '#1e1e2a',
+                  color: iconMode ? '#6090d0' : '#44445a',
+                }}
+                onMouseEnter={e => { if (!iconMode) (e.currentTarget as HTMLElement).style.borderColor = '#2a2a3a'; }}
+                onMouseLeave={e => { if (!iconMode) (e.currentTarget as HTMLElement).style.borderColor = '#1e1e2a'; }}
               >
-                <span className="flex items-center gap-2">
-                  <span>🎯</span>
-                  <span>Icon / Symbol mode</span>
-                </span>
-                <span className={`text-xs px-2 py-0.5 rounded-full ${iconMode ? 'bg-violet-700 text-violet-100' : 'bg-gray-800 text-gray-500'}`}>
+                <span>Icon / Symbol mode</span>
+                <span className="text-xs px-2 py-0.5 rounded" style={{ background: iconMode ? '#1a3050' : '#1a1a26', color: iconMode ? '#6090d0' : '#33334a' }}>
                   {iconMode ? 'ON — flat + auto remove BG' : 'OFF'}
                 </span>
               </button>
 
               {/* Suggestion chips */}
               <div>
-                <p className="text-gray-500 text-xs mb-1.5">Quick starts</p>
+                <p className="text-xs mb-1.5" style={{ color: '#33334a' }}>Quick starts</p>
                 <div className="flex flex-wrap gap-1.5">
                   {chips.map(chip => (
                     <button key={chip} onClick={() => setPrompt(chip)}
-                      className={`text-xs bg-gray-900 hover:bg-gray-800 text-gray-300 px-2.5 py-1 rounded-full transition-colors border ${modeChipBorder}`}>
+                      className="text-xs px-2.5 py-1 rounded transition-colors border"
+                      style={{ background: '#0e0e18', borderColor: isPro ? '#1a2a40' : '#2a1e0a', color: '#6060a0' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#9090c0'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#6060a0'; }}
+                    >
                       {chip}
                     </button>
                   ))}
@@ -462,8 +480,8 @@ export default function ProjectPage() {
               {/* Prompt input */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <p className="text-gray-400 text-xs font-medium">Your prompt</p>
-                  <span className="text-gray-600 text-xs">{prompt.length} chars</span>
+                  <p className="text-xs font-medium" style={{ color: '#44445a' }}>Your prompt</p>
+                  <span className="text-xs" style={{ color: '#2a2a3a' }}>{prompt.length} chars</span>
                 </div>
                 <textarea
                   value={prompt}
@@ -471,21 +489,29 @@ export default function ProjectPage() {
                   onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleGenerate(); }}
                   placeholder={isPro ? 'Describe your presentation visual in detail...' : 'Describe your fun image...'}
                   rows={3}
-                  className={`w-full rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none resize-none transition-colors border ${isPro ? 'border-gray-700 focus:border-blue-500' : 'border-gray-700 focus:border-amber-500'}`}
-                  style={{ background: '#111118' }}
+                  className="w-full rounded-md px-3 py-2.5 text-sm focus:outline-none resize-none transition-colors border"
+                  style={{
+                    background: '#0a0a14',
+                    color: '#d0d0e8',
+                    borderColor: '#1e1e2a',
+                    caretColor: isPro ? '#3b82f6' : '#f59e0b',
+                  }}
+                  onFocus={e => { (e.currentTarget as HTMLElement).style.borderColor = isPro ? '#3b82f6' : '#f59e0b'; }}
+                  onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = '#1e1e2a'; }}
                 />
-                <p className="text-gray-700 text-xs mt-1">⌘↩ to generate</p>
+                <p className="text-xs mt-1" style={{ color: '#22222e' }}>⌘↩ to generate</p>
               </div>
 
               <button
                 onClick={handleGenerate}
                 disabled={generating || !prompt.trim()}
-                className={`w-full ${modeAccent} disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg`}
+                className="w-full font-semibold py-2.5 rounded-md text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ background: isPro ? '#3b82f6' : '#f59e0b', color: '#fff' }}
               >
                 {generating ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Generating...
+                    Generating…
                   </>
                 ) : (
                   <>✦ Generate with PixelMuse</>
@@ -493,49 +519,54 @@ export default function ProjectPage() {
               </button>
 
               {genError && (
-                <div className="rounded-xl border border-red-900 bg-red-950/50 px-4 py-3 text-center">
-                  <p className="text-red-400 text-sm font-medium">Generation failed</p>
-                  <p className="text-red-500 text-xs mt-1">Image service timed out. Try a simpler prompt or retry.</p>
-                  <button onClick={handleGenerate} className="mt-2 text-xs text-red-400 hover:text-red-300 underline">Retry</button>
+                <div className="rounded-md border px-4 py-3 text-center" style={{ background: '#1a0e0e', borderColor: '#3a1a1a' }}>
+                  <p className="text-sm font-medium" style={{ color: '#e06060' }}>Generation failed</p>
+                  <p className="text-xs mt-1" style={{ color: '#804040' }}>Image service timed out. Try a simpler prompt or retry.</p>
+                  <button onClick={handleGenerate} className="mt-2 text-xs underline" style={{ color: '#e06060' }}>Retry</button>
                 </div>
               )}
 
               {generatedUrl && (
                 <div className="space-y-3 pt-1">
-                  <div className="rounded-xl overflow-hidden border border-gray-800">
+                  <div className="rounded-md overflow-hidden border" style={{ borderColor: '#1e1e2a' }}>
                     <img src={generatedUrl} alt="Generated" className="w-full object-cover" />
-                    <div className="px-3 py-2.5 space-y-2" style={{ background: '#111118' }}>
+                    <div className="px-3 py-2.5 space-y-2" style={{ background: '#0e0e18' }}>
                       <div className="flex gap-2">
                         <button
                           onClick={handleSave}
                           disabled={saved}
-                          className={`flex-1 text-white text-xs font-medium py-2 rounded-lg transition-colors ${saved ? 'bg-gray-800 text-gray-400 cursor-default' : 'bg-green-700 hover:bg-green-600'}`}
+                          className="flex-1 text-xs font-medium py-2 rounded-md transition-colors"
+                          style={{ background: saved ? '#1a1a26' : '#0d2a1a', color: saved ? '#44445a' : '#3d9970', border: `1px solid ${saved ? '#2a2a3a' : '#1a4030'}` }}
                         >
                           {saved ? '✓ Saved' : '↓ Save to Project'}
                         </button>
                         <button
                           onClick={placeOnSlide}
                           disabled={placed || removingBg}
-                          className={`flex-1 text-white text-xs font-medium py-2 rounded-lg transition-colors ${placed ? 'bg-gray-800 text-gray-400 cursor-default' : 'bg-blue-700 hover:bg-blue-600 disabled:opacity-60'}`}
+                          className="flex-1 text-xs font-medium py-2 rounded-md transition-all disabled:opacity-60"
+                          style={{ background: placed ? '#1a1a26' : '#0d1a2e', color: placed ? '#44445a' : '#6090d0', border: `1px solid ${placed ? '#2a2a3a' : '#1a3050'}` }}
                         >
-                          {removingBg ? 'Removing BG...' : placed ? '✓ On Slide' : '⊞ Place on Slide'}
+                          {removingBg ? 'Removing BG…' : placed ? '✓ On Slide' : '⊞ Place on Slide'}
                         </button>
                         <button
                           onClick={() => { setPrompt(''); setGeneratedUrl(null); setScore(null); setSaved(false); setPlaced(false); }}
-                          className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-400 text-xs rounded-lg transition-colors"
+                          className="px-3 py-2 rounded-md text-xs transition-colors"
+                          style={{ background: '#1a1a26', color: '#44445a', border: '1px solid #2a2a3a' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#22222e'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#1a1a26'; }}
                         >
                           ✕
                         </button>
                       </div>
-                      <p className="text-gray-700 text-xs text-center">Place on Slide → drag &amp; resize on canvas · toggle Remove BG for icons</p>
+                      <p className="text-xs text-center" style={{ color: '#2a2a3a' }}>Place on Slide → drag &amp; resize on canvas</p>
                     </div>
                   </div>
                   {score && <ScoreDisplay score={score} mode={mode} />}
                   {!score && generating === false && (
-                    <div className="rounded-xl border border-gray-800 px-4 py-3" style={{ background: '#111118' }}>
+                    <div className="rounded-md border px-4 py-3" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 border-2 border-violet-400/40 border-t-violet-400 rounded-full animate-spin" />
-                        <span className="text-gray-500 text-xs">Scoring your prompt...</span>
+                        <div className="w-3 h-3 border-2 rounded-full animate-spin" style={{ borderColor: '#2a2a4a', borderTopColor: '#4f6ef7' }} />
+                        <span className="text-xs" style={{ color: '#44445a' }}>Scoring your prompt…</span>
                       </div>
                     </div>
                   )}
@@ -547,27 +578,30 @@ export default function ProjectPage() {
           {/* ASSETS TAB */}
           {tab === 'assets' && (
             <>
-              <p className="text-gray-500 text-xs">{assets.length} saved visual{assets.length !== 1 ? 's' : ''}</p>
+              <p className="text-xs" style={{ color: '#33334a' }}>{assets.length} saved visual{assets.length !== 1 ? 's' : ''}</p>
               {assets.length === 0 ? (
-                <div className="text-center py-8 text-gray-600 text-sm">
+                <div className="text-center py-8 text-sm" style={{ color: '#2a2a3a' }}>
                   No saved assets yet.<br />Generate and save visuals first.
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2">
                   {assets.map(a => (
-                    <div key={a.id} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+                    <div key={a.id} className="rounded-md overflow-hidden border" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
                       <img src={a.url} alt={a.prompt} className="w-full aspect-video object-cover" />
-                      <div className="p-2 space-y-1">
-                        <p className="text-gray-400 text-xs leading-tight line-clamp-2">{a.prompt}</p>
+                      <div className="p-2 space-y-1.5">
+                        <p className="text-xs leading-tight line-clamp-2" style={{ color: '#44445a' }}>{a.prompt}</p>
                         <div className="flex items-center justify-between">
-                          <span className={`text-xs px-1.5 py-0.5 rounded-full ${a.mode === 'professional' ? 'bg-blue-900 text-blue-300' : 'bg-amber-900 text-amber-300'}`}>
-                            {a.mode === 'professional' ? '🎓 Pro' : '🎉 Personal'}
+                          <span className="text-xs font-medium" style={{ color: a.mode === 'professional' ? '#6090d0' : '#c09040' }}>
+                            {a.mode === 'professional' ? 'Pro' : 'Personal'}
                           </span>
-                          <span className={`text-xs font-medium ${a.mode === 'professional' ? 'text-blue-400' : 'text-amber-400'}`}>{a.promptScore.overall}</span>
+                          <span className="text-xs font-medium tabular-nums" style={{ color: a.mode === 'professional' ? '#6090d0' : '#c09040' }}>{a.promptScore.overall}</span>
                         </div>
                         <button
                           onClick={() => { setPrompt(a.prompt); setMode(a.mode); setTab('generate'); }}
-                          className="w-full text-xs text-gray-500 hover:text-violet-400 transition-colors text-left"
+                          className="w-full text-xs text-left transition-colors"
+                          style={{ color: '#33334a' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#6090d0'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#33334a'; }}
                         >
                           ↺ Reuse style
                         </button>
@@ -581,50 +615,63 @@ export default function ProjectPage() {
 
           {/* BRIEF TAB */}
           {tab === 'brief' && (
-            <div className="space-y-4">
-              <div className={`rounded-xl p-3 border ${isPro ? 'bg-blue-950 border-blue-900' : 'bg-amber-950 border-amber-900'}`}>
-                <p className={`text-xs font-medium mb-1 ${isPro ? 'text-blue-400' : 'text-amber-400'}`}>
-                  {isPro ? '🎓 Professional Mode' : '🎉 Personal Mode'}
+            <div className="space-y-3">
+              <div className="rounded-md px-3 py-2.5 border" style={{ background: '#0e0e18', borderLeft: `3px solid ${isPro ? '#3b82f6' : '#f59e0b'}`, borderColor: isPro ? '#1a3050' : '#2a1e0a' }}>
+                <p className="text-xs font-medium mb-1" style={{ color: isPro ? '#6090d0' : '#c09040' }}>
+                  {isPro ? 'Professional Mode' : 'Personal Mode'}
                 </p>
-                <p className={`text-sm ${isPro ? 'text-blue-200' : 'text-amber-200'}`}>
+                <p className="text-xs leading-relaxed" style={{ color: '#6060a0' }}>
                   {isPro
-                    ? 'Generating clean, slide-ready visuals for presentations. Prompts are tuned for clarity, minimal design, and professional context.'
-                    : 'Generating fun, expressive visuals for personal use. Prompts are tuned for creativity, humor, and shareability.'}
+                    ? 'Clean, slide-ready visuals for presentations. Prompts tuned for clarity, minimal design, and professional context.'
+                    : 'Fun, expressive visuals for personal use. Prompts tuned for creativity, humor, and shareability.'}
                 </p>
               </div>
 
-              <div className="bg-gray-900 rounded-xl p-3 border border-gray-800 space-y-3">
-                <p className="text-white font-semibold text-sm">Project Details</p>
-                {[
-                  ['Title', project.title],
-                  ['Category', `${project.category.charAt(0).toUpperCase() + project.category.slice(1)} — ${CATEGORY_BRIEF[project.category]}`],
-                  ['Platform', project.platform === 'google-slides' ? 'Google Slides' : project.platform === 'powerpoint' ? 'PowerPoint' : 'No platform set'],
-                  ['Style', project.style.charAt(0).toUpperCase() + project.style.slice(1)],
-                  ['Created', project.createdAt],
-                  ['Last updated', project.updatedAt],
-                  ['Assets saved', `${assets.length} visual${assets.length !== 1 ? 's' : ''}`],
-                ].map(([label, value]) => (
-                  <div key={label} className="flex gap-2">
-                    <span className="text-gray-500 text-xs w-24 shrink-0">{label}</span>
-                    <span className="text-gray-300 text-xs leading-relaxed">{value}</span>
-                  </div>
-                ))}
+              <div className="rounded-md border" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
+                <div className="px-4 py-3 border-b" style={{ borderColor: '#1e1e2a' }}>
+                  <p className="text-sm font-semibold tracking-tight" style={{ color: '#d0d0e8' }}>Project Details</p>
+                </div>
+                <div className="px-4 py-3 space-y-2.5">
+                  {[
+                    ['Title', project.title],
+                    ['Category', `${project.category.charAt(0).toUpperCase() + project.category.slice(1)} — ${CATEGORY_BRIEF[project.category]}`],
+                    ['Platform', project.platform === 'google-slides' ? 'Google Slides' : project.platform === 'powerpoint' ? 'PowerPoint' : 'None'],
+                    ['Style', project.style.charAt(0).toUpperCase() + project.style.slice(1)],
+                    ['Created', project.createdAt],
+                    ['Last updated', project.updatedAt],
+                    ['Assets saved', `${assets.length} visual${assets.length !== 1 ? 's' : ''}`],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex gap-2">
+                      <span className="text-xs w-24 shrink-0" style={{ color: '#33334a' }}>{label}</span>
+                      <span className="text-xs leading-relaxed" style={{ color: '#7070a0' }}>{value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="bg-gray-900 rounded-xl p-3 border border-gray-800">
-                <p className="text-white font-semibold text-sm mb-2">Visual Checklist</p>
-                {([['Cover', 'cover'], ['Diagram', 'diagram'], ['Section Divider', 'divider'], ['Extras', 'extras']] as [string, keyof typeof project.progressStatus][]).map(([label, key]) => (
-                  <button key={key} onClick={() => {
-                    const updated = { ...project, progressStatus: { ...project.progressStatus, [key]: !project.progressStatus[key] } };
-                    saveProject(updated);
-                    setProject(updated);
-                  }} className="w-full flex items-center gap-3 py-2 border-b border-gray-800 last:border-0 hover:bg-gray-800 rounded px-1 transition-colors">
-                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${project.progressStatus[key] ? isPro ? 'bg-blue-500 border-blue-500' : 'bg-amber-500 border-amber-500' : 'border-gray-600'}`}>
-                      {project.progressStatus[key] && <span className="text-white text-xs">✓</span>}
-                    </div>
-                    <span className={`text-sm ${project.progressStatus[key] ? 'text-gray-400 line-through' : 'text-gray-200'}`}>{label} visual</span>
-                  </button>
-                ))}
+              <div className="rounded-md border" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
+                <div className="px-4 py-3 border-b" style={{ borderColor: '#1e1e2a' }}>
+                  <p className="text-sm font-semibold tracking-tight" style={{ color: '#d0d0e8' }}>Visual Checklist</p>
+                </div>
+                <div className="px-4 py-1">
+                  {([['Cover', 'cover'], ['Diagram', 'diagram'], ['Section Divider', 'divider'], ['Extras', 'extras']] as [string, keyof typeof project.progressStatus][]).map(([label, key]) => (
+                    <button key={key} onClick={() => {
+                      const updated = { ...project, progressStatus: { ...project.progressStatus, [key]: !project.progressStatus[key] } };
+                      saveProject(updated);
+                      setProject(updated);
+                    }} className="w-full flex items-center gap-3 py-2.5 border-b last:border-0 transition-colors"
+                    style={{ borderColor: '#1a1a26' }}>
+                      <div className="w-3.5 h-3.5 rounded-sm border flex items-center justify-center shrink-0 transition-colors"
+                        style={{
+                          background: project.progressStatus[key] ? (isPro ? '#3b82f6' : '#f59e0b') : 'transparent',
+                          borderColor: project.progressStatus[key] ? (isPro ? '#3b82f6' : '#f59e0b') : '#2a2a3a',
+                        }}>
+                        {project.progressStatus[key] && <span className="text-white font-bold" style={{ fontSize: '9px' }}>✓</span>}
+                      </div>
+                      <span className="text-xs" style={{ color: project.progressStatus[key] ? '#33334a' : '#9090a8', textDecoration: project.progressStatus[key] ? 'line-through' : 'none' }}>{label} visual</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -632,33 +679,46 @@ export default function ProjectPage() {
           {/* EXPORT TAB */}
           {tab === 'export' && (
             <div className="space-y-3">
-              <p className="text-gray-400 text-xs">{assets.length} asset{assets.length !== 1 ? 's' : ''} ready to export</p>
+              <p className="text-xs" style={{ color: '#33334a' }}>{assets.length} asset{assets.length !== 1 ? 's' : ''} ready to export</p>
 
               <button onClick={handleShareLink}
-                className="w-full bg-violet-600 hover:bg-violet-500 text-white font-medium py-2.5 rounded-xl text-sm transition-colors">
-                {copied ? '✓ Link Copied!' : '🔗 Share Project Link'}
+                className="w-full font-medium py-2.5 rounded-md text-sm transition-all"
+                style={{ background: '#4f6ef7', color: '#fff' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#6080ff'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#4f6ef7'; }}
+              >
+                {copied ? '✓ Link Copied!' : '↗ Share Project Link'}
               </button>
-              <p className="text-gray-600 text-xs text-center">Shared link shows your project + prompts recipient to start their own</p>
+              <p className="text-xs text-center" style={{ color: '#2a2a3a' }}>Prompts recipient to start their own project</p>
 
-              <div className="border-t border-gray-800 pt-3 space-y-2">
+              <div className="pt-1 space-y-2">
                 <button
-                  onClick={() => alert('📊 Google Slides integration — coming in v2. Download PNGs and insert manually for now.')}
-                  className="w-full bg-blue-900 hover:bg-blue-800 text-blue-100 font-medium py-2 rounded-xl text-sm transition-colors"
+                  onClick={() => alert('Google Slides integration — coming in v2. Download PNGs and insert manually for now.')}
+                  className="w-full font-medium py-2 rounded-md text-sm transition-colors border"
+                  style={{ background: '#0d1a2e', borderColor: '#1a3050', color: '#6090d0' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#0e2040'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#0d1a2e'; }}
                 >
-                  📊 Send to Google Slides
+                  Send to Google Slides
                 </button>
                 <button
-                  onClick={() => alert('📝 PowerPoint integration — coming in v2. Download PNGs and insert manually for now.')}
-                  className="w-full bg-indigo-900 hover:bg-indigo-800 text-indigo-100 font-medium py-2 rounded-xl text-sm transition-colors"
+                  onClick={() => alert('PowerPoint integration — coming in v2. Download PNGs and insert manually for now.')}
+                  className="w-full font-medium py-2 rounded-md text-sm transition-colors border"
+                  style={{ background: '#0d1a2e', borderColor: '#1a3050', color: '#6090d0' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#0e2040'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#0d1a2e'; }}
                 >
-                  📝 Export to PowerPoint
+                  Export to PowerPoint
                 </button>
                 <button
                   onClick={handleDownload}
                   disabled={assets.length === 0 || downloading}
-                  className="w-full bg-gray-800 hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed text-gray-200 font-medium py-2 rounded-xl text-sm transition-colors"
+                  className="w-full font-medium py-2 rounded-md text-sm transition-colors border disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: '#1a1a26', borderColor: '#2a2a3a', color: '#d0d0e8' }}
+                  onMouseEnter={e => { if (!downloading && assets.length > 0) (e.currentTarget as HTMLElement).style.background = '#22222e'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#1a1a26'; }}
                 >
-                  {downloading ? 'Downloading...' : `⬇️ Download ${assets.length} PNG Asset${assets.length !== 1 ? 's' : ''}`}
+                  {downloading ? 'Downloading…' : `↓ Download ${assets.length} PNG Asset${assets.length !== 1 ? 's' : ''}`}
                 </button>
               </div>
             </div>

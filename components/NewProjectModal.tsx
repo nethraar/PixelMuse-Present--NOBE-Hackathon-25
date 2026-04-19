@@ -31,11 +31,14 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
   }
 
   return (
-    <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-5 w-full max-w-sm space-y-4">
+    <div className="absolute inset-0 flex items-center justify-center z-50 p-4" style={{ background: 'rgba(0,0,0,0.75)' }}>
+      <div className="w-full max-w-sm rounded-md border p-5 space-y-4" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
         <div className="flex items-center justify-between">
-          <h2 className="text-white font-semibold">New Project</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-white text-lg leading-none">×</button>
+          <h2 className="text-sm font-semibold tracking-tight" style={{ color: '#f0f0f8' }}>New Project</h2>
+          <button onClick={onClose} className="text-lg leading-none transition-colors" style={{ color: '#33334a' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#9090a8'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#33334a'; }}
+          >×</button>
         </div>
 
         <input
@@ -44,16 +47,25 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
           value={title}
           onChange={e => setTitle(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleCreate()}
-          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-violet-500"
+          className="w-full rounded-md px-3 py-2 text-sm focus:outline-none transition-colors border"
+          style={{ background: '#0a0a14', borderColor: '#1e1e2a', color: '#d0d0e8' }}
+          onFocus={e => { (e.currentTarget as HTMLElement).style.borderColor = '#4f6ef7'; }}
+          onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = '#1e1e2a'; }}
           autoFocus
         />
 
         <div className="space-y-2">
-          <label className="text-gray-400 text-xs">Category</label>
-          <div className="grid grid-cols-2 gap-2">
+          <label className="text-xs" style={{ color: '#33334a' }}>Category</label>
+          <div className="grid grid-cols-2 gap-1.5">
             {(['school','club','internship','casual'] as Category[]).map(c => (
               <button key={c} onClick={() => setCategory(c)}
-                className={`py-1.5 rounded-lg text-xs font-medium capitalize transition-colors ${category === c ? 'bg-violet-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                className="py-1.5 rounded text-xs font-medium capitalize transition-all border"
+                style={{
+                  background: category === c ? '#0d1a2e' : '#0e0e18',
+                  borderColor: category === c ? '#4f6ef7' : '#1e1e2a',
+                  color: category === c ? '#6090d0' : '#44445a',
+                }}
+              >
                 {c}
               </button>
             ))}
@@ -61,11 +73,17 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label className="text-gray-400 text-xs">Mode</label>
-          <div className="grid grid-cols-2 gap-2">
-            {([['professional','🎓 Professional'],['personal','🎉 Personal']] as [Mode,string][]).map(([m, label]) => (
+          <label className="text-xs" style={{ color: '#33334a' }}>Mode</label>
+          <div className="grid grid-cols-2 gap-1.5">
+            {([['professional','Professional'],['personal','Personal']] as [Mode,string][]).map(([m, label]) => (
               <button key={m} onClick={() => setMode(m)}
-                className={`py-1.5 rounded-lg text-xs font-medium transition-colors ${mode === m ? m === 'professional' ? 'bg-blue-600 text-white' : 'bg-amber-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                className="py-1.5 rounded text-xs font-medium transition-all"
+                style={{
+                  background: mode === m ? (m === 'professional' ? '#3b82f6' : '#f59e0b') : '#0e0e18',
+                  color: mode === m ? '#fff' : '#44445a',
+                  border: `1px solid ${mode === m ? 'transparent' : '#1e1e2a'}`,
+                }}
+              >
                 {label}
               </button>
             ))}
@@ -73,11 +91,17 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label className="text-gray-400 text-xs">Platform</label>
-          <div className="grid grid-cols-3 gap-2">
+          <label className="text-xs" style={{ color: '#33334a' }}>Platform</label>
+          <div className="grid grid-cols-3 gap-1.5">
             {([['google-slides','Slides'],['powerpoint','PowerPoint'],[null,'None']] as [Platform, string][]).map(([val, label]) => (
               <button key={String(val)} onClick={() => setPlatform(val)}
-                className={`py-1.5 rounded-lg text-xs font-medium transition-colors ${platform === val ? 'bg-violet-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                className="py-1.5 rounded text-xs font-medium transition-all border"
+                style={{
+                  background: platform === val ? '#0d1a2e' : '#0e0e18',
+                  borderColor: platform === val ? '#4f6ef7' : '#1e1e2a',
+                  color: platform === val ? '#6090d0' : '#44445a',
+                }}
+              >
                 {label}
               </button>
             ))}
@@ -85,11 +109,17 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label className="text-gray-400 text-xs">Style</label>
-          <div className="flex flex-wrap gap-2">
+          <label className="text-xs" style={{ color: '#33334a' }}>Style</label>
+          <div className="flex flex-wrap gap-1.5">
             {(['minimal','corporate','academic','fun','meme'] as Style[]).map(s => (
               <button key={s} onClick={() => setStyle(s)}
-                className={`px-3 py-1 rounded-full text-xs font-medium capitalize transition-colors ${style === s ? 'bg-violet-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                className="px-3 py-1 rounded text-xs font-medium capitalize transition-all border"
+                style={{
+                  background: style === s ? '#0d1a2e' : '#0e0e18',
+                  borderColor: style === s ? '#4f6ef7' : '#1e1e2a',
+                  color: style === s ? '#6090d0' : '#44445a',
+                }}
+              >
                 {s}
               </button>
             ))}
@@ -99,7 +129,10 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
         <button
           onClick={handleCreate}
           disabled={!title.trim()}
-          className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-2 rounded-lg text-sm transition-colors"
+          className="w-full font-medium py-2 rounded-md text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ background: '#4f6ef7', color: '#fff' }}
+          onMouseEnter={e => { if (title.trim()) (e.currentTarget as HTMLElement).style.background = '#6080ff'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#4f6ef7'; }}
         >
           Create Project →
         </button>
