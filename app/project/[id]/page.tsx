@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import AppShell from '@/components/AppShell';
+import AppShell, { PlacedItem } from '@/components/AppShell';
 import { getProject, getAssets, saveAsset, saveProject, addSession } from '@/lib/data';
 import { Project, Asset, Mode, Style, PromptScore } from '@/lib/types';
 
@@ -115,6 +115,8 @@ export default function ProjectPage() {
   const [saved, setSaved] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [genError, setGenError] = useState(false);
+  const [placedItems, setPlacedItems] = useState<PlacedItem[]>([]);
+  const [placed, setPlaced] = useState(false);
 
   useEffect(() => {
     const p = getProject(id);
@@ -131,6 +133,7 @@ export default function ProjectPage() {
     setScore(null);
     setSaved(false);
     setGenError(false);
+    setPlaced(false);
 
     const imagePrompt = buildImagePrompt(prompt, mode, project.style);
 
@@ -186,6 +189,20 @@ export default function ProjectPage() {
     saveProject({ ...project, updatedAt: new Date().toISOString().split('T')[0] });
   }
 
+  function placeOnSlide() {
+    if (!generatedUrl) return;
+    const offset = placedItems.length * 3;
+    const newItem: PlacedItem = {
+      id: `placed-${Date.now()}`,
+      url: generatedUrl,
+      x: 10 + offset, y: 10 + offset,
+      w: 40, h: 60,
+      removeBg: false,
+    };
+    setPlacedItems(prev => [...prev, newItem]);
+    setPlaced(true);
+  }
+
   function handleShareLink() {
     if (!project) return;
     const payload = { project, assets };
@@ -210,10 +227,14 @@ export default function ProjectPage() {
 
   if (!project) return null;
 
-  const slidePreviewImage = generatedUrl ?? (assets.length > 0 ? assets[assets.length - 1].url : null);
-
   return (
-    <AppShell slideImage={slidePreviewImage} generating={generating} projectTitle={project.title}>
+    <AppShell
+      generating={generating}
+      projectTitle={project.title}
+      placedItems={placedItems}
+      onUpdateItem={(id, patch) => setPlacedItems(prev => prev.map(it => it.id === id ? { ...it, ...patch } : it))}
+      onRemoveItem={(id) => setPlacedItems(prev => prev.filter(it => it.id !== id))}
+    >
       <div className="flex flex-col h-full">
         {/* Project header */}
         <div className="px-4 pt-3 pb-2 border-b border-gray-800">
@@ -334,20 +355,30 @@ export default function ProjectPage() {
                 <div className="space-y-3 pt-1">
                   <div className="rounded-xl overflow-hidden border border-gray-800">
                     <img src={generatedUrl} alt="Generated" className="w-full object-cover" />
-                    <div className="px-3 py-2.5 flex gap-2" style={{ background: '#111118' }}>
-                      <button
-                        onClick={handleSave}
-                        disabled={saved}
-                        className={`flex-1 text-white text-xs font-medium py-2 rounded-lg transition-colors ${saved ? 'bg-gray-800 text-gray-400 cursor-default' : 'bg-green-700 hover:bg-green-600'}`}
-                      >
-                        {saved ? '✓ Saved to Project' : '↓ Save to Project'}
-                      </button>
-                      <button
-                        onClick={() => { setPrompt(''); setGeneratedUrl(null); setScore(null); setSaved(false); }}
-                        className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-400 text-xs rounded-lg transition-colors"
-                      >
-                        ✕
-                      </button>
+                    <div className="px-3 py-2.5 space-y-2" style={{ background: '#111118' }}>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleSave}
+                          disabled={saved}
+                          className={`flex-1 text-white text-xs font-medium py-2 rounded-lg transition-colors ${saved ? 'bg-gray-800 text-gray-400 cursor-default' : 'bg-green-700 hover:bg-green-600'}`}
+                        >
+                          {saved ? '✓ Saved' : '↓ Save to Project'}
+                        </button>
+                        <button
+                          onClick={placeOnSlide}
+                          disabled={placed}
+                          className={`flex-1 text-white text-xs font-medium py-2 rounded-lg transition-colors ${placed ? 'bg-gray-800 text-gray-400 cursor-default' : 'bg-blue-700 hover:bg-blue-600'}`}
+                        >
+                          {placed ? '✓ On Slide' : '⊞ Place on Slide'}
+                        </button>
+                        <button
+                          onClick={() => { setPrompt(''); setGeneratedUrl(null); setScore(null); setSaved(false); setPlaced(false); }}
+                          className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-400 text-xs rounded-lg transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <p className="text-gray-700 text-xs text-center">Place on Slide → drag &amp; resize on canvas · toggle Remove BG for icons</p>
                     </div>
                   </div>
                   {score && <ScoreDisplay score={score} mode={mode} />}
