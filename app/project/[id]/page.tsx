@@ -29,24 +29,38 @@ const CATEGORY_BRIEF: Record<string, string> = {
 };
 
 function ScoreDisplay({ score, mode }: { score: PromptScore; mode: Mode }) {
-  const accent = mode === 'professional' ? 'bg-blue-500' : 'bg-amber-500';
-  const textAccent = mode === 'professional' ? 'text-blue-400' : 'text-amber-400';
+  const isPro = mode === 'professional';
+  const barColor = isPro ? 'bg-blue-500' : 'bg-amber-500';
+  const textAccent = isPro ? 'text-blue-400' : 'text-amber-400';
+  const bgAccent = isPro ? 'bg-blue-950 border-blue-900' : 'bg-amber-950 border-amber-900';
+  const scoreColor = score.overall >= 70 ? 'text-green-400' : score.overall >= 45 ? 'text-yellow-400' : 'text-red-400';
   return (
-    <div className="bg-gray-800 rounded-xl p-3 space-y-2 border border-gray-700">
-      <div className="flex items-center justify-between">
-        <span className="text-white font-semibold text-sm">Prompt Score</span>
-        <span className={`font-bold ${textAccent}`}>{score.overall}<span className="text-gray-500 text-xs">/100</span></span>
-      </div>
-      {[['Specificity', score.specificity], ['Style', score.style], ['Context', score.context]].map(([label, val]) => (
-        <div key={label as string} className="flex items-center gap-2">
-          <span className="text-gray-400 text-xs w-16 shrink-0">{label as string}</span>
-          <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
-            <div className={`h-full ${accent} rounded-full`} style={{ width: `${val}%` }} />
-          </div>
-          <span className="text-gray-400 text-xs w-6 text-right">{val as number}</span>
+    <div className="rounded-xl border border-gray-700 overflow-hidden" style={{ background: '#111118' }}>
+      <div className={`px-4 py-3 flex items-center justify-between border-b border-gray-800 ${bgAccent}`}>
+        <div>
+          <p className="text-white font-semibold text-sm">Prompt Quality Score</p>
+          <p className="text-gray-500 text-xs mt-0.5">Your AI literacy rating</p>
         </div>
-      ))}
-      <p className="text-amber-300 text-xs pt-1">💡 {score.tip}</p>
+        <div className="text-right">
+          <span className={`font-bold text-2xl leading-none ${scoreColor}`}>{score.overall}</span>
+          <span className="text-gray-500 text-sm">/100</span>
+        </div>
+      </div>
+      <div className="px-4 py-3 space-y-2.5">
+        {([['Specificity', score.specificity], ['Style', score.style], ['Context', score.context]] as [string, number][]).map(([label, val]) => (
+          <div key={label} className="flex items-center gap-3">
+            <span className="text-gray-400 text-xs w-20 shrink-0">{label}</span>
+            <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+              <div className={`h-full ${barColor} rounded-full transition-all duration-700`} style={{ width: `${val}%` }} />
+            </div>
+            <span className={`text-xs w-7 text-right font-medium ${textAccent}`}>{val}</span>
+          </div>
+        ))}
+        <div className={`mt-1 pt-2 border-t border-gray-800 flex items-start gap-2`}>
+          <span className="text-sm shrink-0 mt-0.5">💡</span>
+          <p className={`text-xs leading-relaxed ${isPro ? 'text-blue-300' : 'text-amber-300'}`}>{score.tip}</p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -170,8 +184,10 @@ export default function ProjectPage() {
 
   if (!project) return null;
 
+  const slidePreviewImage = generatedUrl ?? (assets.length > 0 ? assets[assets.length - 1].url : null);
+
   return (
-    <AppShell>
+    <AppShell slideImage={slidePreviewImage} generating={generating} projectTitle={project.title}>
       <div className="flex flex-col h-full">
         {/* Project header */}
         <div className="px-4 pt-3 pb-2 border-b border-gray-800">
@@ -235,55 +251,80 @@ export default function ProjectPage() {
               </div>
 
               {/* Suggestion chips */}
-              <div className="flex flex-wrap gap-1.5">
-                {chips.map(chip => (
-                  <button key={chip} onClick={() => setPrompt(chip)}
-                    className={`text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded-full transition-colors border ${modeChipBorder}`}>
-                    {chip}
-                  </button>
-                ))}
+              <div>
+                <p className="text-gray-500 text-xs mb-1.5">Quick starts</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {chips.map(chip => (
+                    <button key={chip} onClick={() => setPrompt(chip)}
+                      className={`text-xs bg-gray-900 hover:bg-gray-800 text-gray-300 px-2.5 py-1 rounded-full transition-colors border ${modeChipBorder}`}>
+                      {chip}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Prompt input */}
-              <textarea
-                value={prompt}
-                onChange={e => setPrompt(e.target.value)}
-                placeholder={isPro ? 'Describe your presentation visual...' : 'Describe your fun image...'}
-                rows={3}
-                className={`w-full bg-gray-900 border rounded-xl px-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none resize-none transition-colors ${isPro ? 'border-gray-700 focus:border-blue-500' : 'border-gray-700 focus:border-amber-500'}`}
-              />
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-gray-400 text-xs font-medium">Your prompt</p>
+                  <span className="text-gray-600 text-xs">{prompt.length} chars</span>
+                </div>
+                <textarea
+                  value={prompt}
+                  onChange={e => setPrompt(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleGenerate(); }}
+                  placeholder={isPro ? 'Describe your presentation visual in detail...' : 'Describe your fun image...'}
+                  rows={3}
+                  className={`w-full rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none resize-none transition-colors border ${isPro ? 'border-gray-700 focus:border-blue-500' : 'border-gray-700 focus:border-amber-500'}`}
+                  style={{ background: '#111118' }}
+                />
+                <p className="text-gray-700 text-xs mt-1">⌘↩ to generate</p>
+              </div>
 
               <button
                 onClick={handleGenerate}
                 disabled={generating || !prompt.trim()}
-                className={`w-full ${modeAccent} disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-2 rounded-xl text-sm transition-colors flex items-center justify-center gap-2`}
+                className={`w-full ${modeAccent} disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg`}
               >
                 {generating ? (
-                  <><span className="animate-spin inline-block">⟳</span> Generating...</>
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Generating...
+                  </>
                 ) : (
-                  '✦ Generate with PixelMuse'
+                  <>✦ Generate with PixelMuse</>
                 )}
               </button>
 
               {generatedUrl && (
-                <div className="space-y-3">
-                  <img src={generatedUrl} alt="Generated" className="w-full rounded-xl border border-gray-700 object-cover" />
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleSave}
-                      disabled={saved}
-                      className="flex-1 bg-green-700 hover:bg-green-600 disabled:bg-gray-800 disabled:text-gray-500 text-white text-xs font-medium py-2 rounded-lg transition-colors"
-                    >
-                      {saved ? '✓ Saved to Project' : 'Save to Project'}
-                    </button>
-                    <button
-                      onClick={() => { setPrompt(''); setGeneratedUrl(null); setScore(null); setSaved(false); }}
-                      className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded-lg transition-colors"
-                    >
-                      Clear
-                    </button>
+                <div className="space-y-3 pt-1">
+                  <div className="rounded-xl overflow-hidden border border-gray-800">
+                    <img src={generatedUrl} alt="Generated" className="w-full object-cover" />
+                    <div className="px-3 py-2.5 flex gap-2" style={{ background: '#111118' }}>
+                      <button
+                        onClick={handleSave}
+                        disabled={saved}
+                        className={`flex-1 text-white text-xs font-medium py-2 rounded-lg transition-colors ${saved ? 'bg-gray-800 text-gray-400 cursor-default' : 'bg-green-700 hover:bg-green-600'}`}
+                      >
+                        {saved ? '✓ Saved to Project' : '↓ Save to Project'}
+                      </button>
+                      <button
+                        onClick={() => { setPrompt(''); setGeneratedUrl(null); setScore(null); setSaved(false); }}
+                        className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-400 text-xs rounded-lg transition-colors"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
                   {score && <ScoreDisplay score={score} mode={mode} />}
+                  {!score && generating === false && (
+                    <div className="rounded-xl border border-gray-800 px-4 py-3" style={{ background: '#111118' }}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 border-2 border-violet-400/40 border-t-violet-400 rounded-full animate-spin" />
+                        <span className="text-gray-500 text-xs">Scoring your prompt...</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </>

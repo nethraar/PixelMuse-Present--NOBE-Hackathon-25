@@ -26,6 +26,7 @@ export default function Dashboard() {
   const [sessions, setSessions] = useState<SessionScore[]>([]);
   const [assetCounts, setAssetCounts] = useState<Record<string, number>>({});
   const [showModal, setShowModal] = useState(false);
+  const [featuredImage, setFeaturedImage] = useState<string | null>(null);
 
   function refresh() {
     const projs = getProjects();
@@ -34,6 +35,14 @@ export default function Dashboard() {
     const counts: Record<string, number> = {};
     projs.forEach(p => { counts[p.id] = getAssets(p.id).length; });
     setAssetCounts(counts);
+    // Show most recent saved asset on the slide canvas
+    for (const p of projs) {
+      const assets = getAssets(p.id);
+      if (assets.length > 0) {
+        setFeaturedImage(assets[assets.length - 1].url);
+        break;
+      }
+    }
   }
 
   useEffect(() => {
@@ -53,7 +62,7 @@ export default function Dashboard() {
   const firstScore = sessions.length ? sessions[0].avgScore : 0;
 
   return (
-    <AppShell>
+    <AppShell slideImage={featuredImage}>
       <div className="p-4 space-y-4">
         {/* Score trajectory widget */}
         <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
