@@ -122,7 +122,10 @@ export default function ProjectPage() {
   }
 
   function handleShareLink() {
-    const url = `${window.location.origin}/project/${id}/view`;
+    if (!project) return;
+    const payload = { project, assets };
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    const url = `${window.location.origin}/project/${id}/view#${encoded}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
