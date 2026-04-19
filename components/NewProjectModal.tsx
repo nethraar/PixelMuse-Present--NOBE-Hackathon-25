@@ -6,7 +6,7 @@ import { Project, Mode, Category, Platform, Style } from '@/lib/types';
 
 interface Props {
   onClose: () => void;
-  onCreate: () => void;
+  onCreate: (projectId: string) => void;
 }
 
 export default function NewProjectModal({ onClose, onCreate }: Props) {
@@ -27,7 +27,7 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
       progressStatus: { cover: false, diagram: false, divider: false, extras: false },
     };
     createProject(project);
-    onCreate();
+    onCreate(project.id);
   }
 
   return (
@@ -43,7 +43,9 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
           placeholder="Project title..."
           value={title}
           onChange={e => setTitle(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleCreate()}
           className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-violet-500"
+          autoFocus
         />
 
         <div className="space-y-2">
@@ -61,10 +63,10 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
         <div className="space-y-2">
           <label className="text-gray-400 text-xs">Mode</label>
           <div className="grid grid-cols-2 gap-2">
-            {(['professional','personal'] as Mode[]).map(m => (
+            {([['professional','🎓 Professional'],['personal','🎉 Personal']] as [Mode,string][]).map(([m, label]) => (
               <button key={m} onClick={() => setMode(m)}
-                className={`py-1.5 rounded-lg text-xs font-medium capitalize transition-colors ${mode === m ? 'bg-violet-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
-                {m}
+                className={`py-1.5 rounded-lg text-xs font-medium transition-colors ${mode === m ? m === 'professional' ? 'bg-blue-600 text-white' : 'bg-amber-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                {label}
               </button>
             ))}
           </div>
@@ -99,7 +101,7 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
           disabled={!title.trim()}
           className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-2 rounded-lg text-sm transition-colors"
         >
-          Create Project
+          Create Project →
         </button>
       </div>
     </div>

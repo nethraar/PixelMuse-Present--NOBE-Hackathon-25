@@ -4,30 +4,36 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AppShell from '@/components/AppShell';
 import NewProjectModal from '@/components/NewProjectModal';
-import { initData, getProjects, getSessions } from '@/lib/data';
+import { initData, getProjects, getSessions, getAssets } from '@/lib/data';
 import { Project, SessionScore } from '@/lib/types';
 
 const CATEGORY_LABELS: Record<string, string> = {
   school: 'School', club: 'Club', internship: 'Internship', casual: 'Casual',
-};
-const MODE_COLORS: Record<string, string> = {
-  professional: 'bg-blue-900 text-blue-300',
-  personal: 'bg-amber-900 text-amber-300',
 };
 
 function progressCount(p: Project) {
   return Object.values(p.progressStatus).filter(Boolean).length;
 }
 
+function formatDate(dateStr: string) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [sessions, setSessions] = useState<SessionScore[]>([]);
+  const [assetCounts, setAssetCounts] = useState<Record<string, number>>({});
   const [showModal, setShowModal] = useState(false);
 
   function refresh() {
-    setProjects(getProjects());
+    const projs = getProjects();
+    setProjects(projs);
     setSessions(getSessions());
+    const counts: Record<string, number> = {};
+    projs.forEach(p => { counts[p.id] = getAssets(p.id).length; });
+    setAssetCounts(counts);
   }
 
   useEffect(() => {
@@ -57,7 +63,7 @@ export default function Dashboard() {
           </div>
           <div className="flex items-end gap-1.5 h-10 mb-2">
             {sessions.map((s, i) => (
-              <div key={i} className="flex-1 flex flex-col items-end">
+              <div key={i} className="flex-1 flex flex-col items-end" title={`Session ${s.session}: ${s.avgScore}`}>
                 <div
                   className={`w-full rounded-t transition-all ${i === sessions.length - 1 ? 'bg-violet-500' : 'bg-gray-700'}`}
                   style={{ height: `${(s.avgScore / 100) * 40}px` }}
@@ -67,12 +73,12 @@ export default function Dashboard() {
           </div>
           <div className="flex justify-between text-xs text-gray-500">
             <span>Session 1: {firstScore}</span>
-            <span>Now: {latestScore} ↑{latestScore - firstScore} pts</span>
+            <span>Now: {latestScore} {latestScore > firstScore ? `↑${latestScore - firstScore} pts` : ''}</span>
           </div>
           <p className="text-gray-500 text-xs mt-2">Every prompt — professional or personal — builds this score.</p>
         </div>
 
-        {/* Next step suggestion — most recent incomplete project */}
+        {/* Next step suggestion */}
         {(() => {
           const next = projects.find(p => progressCount(p) < 4) ?? projects[0];
           if (!next) return null;
@@ -111,26 +117,26 @@ export default function Dashboard() {
               onClick={() => router.push(`/project/${p.id}`)}
               className="bg-gray-900 border border-gray-800 rounded-xl p-3 cursor-pointer hover:border-gray-600 transition-colors"
             >
-              <div className="flex items-start justify-between gap-2 mb-2">
+              <div className="flex items-start justify-between gap-2 mb-1.5">
                 <p className="text-white text-sm font-medium leading-tight">{p.title}</p>
-                <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${MODE_COLORS[p.mode]}`}>
-                  {p.mode === 'professional' ? 'Pro' : 'Personal'}
+                <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 font-medium ${p.mode === 'professional' ? 'bg-blue-900 text-blue-300' : 'bg-amber-900 text-amber-300'}`}>
+                  {p.mode === 'professional' ? '🎓 Pro' : '🎉 Personal'}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex gap-2 items-center">
                   <span className="text-gray-500 text-xs">{CATEGORY_LABELS[p.category]}</span>
-                  {p.platform && (
-                    <span className="text-gray-600 text-xs">
-                      · {p.platform === 'google-slides' ? 'Google Slides' : 'PowerPoint'}
-                    </span>
-                  )}
+                  {p.platform && <span className="text-gray-600 text-xs">· {p.platform === 'google-slides' ? 'Google Slides' : 'PowerPoint'}</span>}
                 </div>
-                <span className="text-gray-600 text-xs">{progressCount(p)}/4 done</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600 text-xs">{assetCounts[p.id] ?? 0} assets</span>
+                  <span className="text-gray-700 text-xs">·</span>
+                  <span className="text-gray-600 text-xs">{formatDate(p.updatedAt)}</span>
+                </div>
               </div>
-              <div className="flex gap-1 mt-2">
+              <div className="flex gap-1">
                 {Object.entries(p.progressStatus).map(([key, done]) => (
-                  <div key={key} className={`h-1 flex-1 rounded-full ${done ? 'bg-violet-500' : 'bg-gray-800'}`} />
+                  <div key={key} className={`h-1 flex-1 rounded-full ${done ? p.mode === 'professional' ? 'bg-blue-500' : 'bg-amber-500' : 'bg-gray-800'}`} />
                 ))}
               </div>
             </div>
@@ -141,9 +147,9 @@ export default function Dashboard() {
       {showModal && (
         <NewProjectModal
           onClose={() => setShowModal(false)}
-          onCreate={() => {
-            setProjects(getProjects());
+          onCreate={(projectId) => {
             setShowModal(false);
+            router.push(`/project/${projectId}`);
           }}
         />
       )}
