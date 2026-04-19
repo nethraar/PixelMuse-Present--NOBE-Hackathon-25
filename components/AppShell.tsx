@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import { useRouter } from 'next/navigation';
 
 export interface PlacedItem {
   id: string;
@@ -49,6 +50,7 @@ export default function AppShell({
   placedItems = [], onUpdateItem, onRemoveItem, onRemoveBg,
   uploadedSlides = [], selectedSlide = 0, onSelectSlide, onRequestUpload, loadingSlides,
 }: AppShellProps) {
+  const router = useRouter();
   const slideRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const dragState = useRef<DragState | null>(null);
@@ -99,31 +101,31 @@ export default function AppShell({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#080810' }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: '#07070e' }}>
       {/* Google Slides canvas */}
-      <div className="flex-1 flex flex-col min-w-0" style={{ background: '#1a1a22' }}>
+      <div className="flex-1 flex flex-col min-w-0" style={{ background: '#141420' }}>
         {/* Top menu bar */}
-        <div className="h-10 flex items-center px-4 gap-3 shrink-0 border-b" style={{ background: '#1e1e28', borderColor: '#2a2a38' }}>
+        <div className="h-10 flex items-center px-4 gap-3 shrink-0 border-b" style={{ background: '#181828', borderColor: '#252538' }}>
           <div className="flex items-center gap-2.5 shrink-0">
             <div className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold" style={{ background: '#FBBC04' }}>G</div>
-            <span className="text-sm font-medium truncate max-w-52 tracking-tight" style={{ color: '#e0e0e8' }}>{projectTitle || 'Untitled Presentation'}</span>
+            <span className="text-sm font-medium truncate max-w-52 tracking-tight" style={{ color: '#d8d8ec' }}>{projectTitle || 'Untitled Presentation'}</span>
           </div>
           <div className="flex items-center gap-0.5 ml-4">
             {['File','Edit','View','Insert','Format','Tools','Extensions','Help'].map(m => (
-              <span key={m} className="text-xs px-2 py-1 rounded cursor-default transition-colors hover:bg-white/8" style={{ color: '#9090a8' }}>{m}</span>
+              <span key={m} className="text-xs px-2 py-1 rounded cursor-default transition-colors hover:bg-white/8" style={{ color: '#7878a0' }}>{m}</span>
             ))}
           </div>
           <div className="ml-auto flex items-center gap-2">
             {hasPlaced && (
-              <span className="text-xs" style={{ color: '#55556a' }}>drag · resize</span>
+              <span className="text-xs" style={{ color: '#4a4a68' }}>drag · resize</span>
             )}
             {onRequestUpload && (
               <button
                 onClick={onRequestUpload}
                 className="text-xs px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 border"
-                style={{ background: '#22222e', borderColor: '#2e2e3e', color: '#b0b0c8' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#2a2a38'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#22222e'; }}
+                style={{ background: '#1e1e30', borderColor: '#2a2a3e', color: '#a0a0c0' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#262636'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#1e1e30'; }}
               >
                 {loadingSlides ? (
                   <><span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin inline-block" /> Rendering…</>
@@ -136,14 +138,14 @@ export default function AppShell({
         </div>
 
         {/* Toolbar */}
-        <div className="h-9 flex items-center px-3 gap-1 shrink-0 border-b" style={{ background: '#1e1e28', borderColor: '#2a2a38' }}>
+        <div className="h-9 flex items-center px-3 gap-1 shrink-0 border-b" style={{ background: '#181828', borderColor: '#252538' }}>
           {['↩','↪','T','⬜','🖊'].map((icon, i) => (
-            <div key={i} className="w-7 h-7 rounded flex items-center justify-center text-xs cursor-default transition-colors hover:bg-white/8" style={{ color: '#9090a8' }}>{icon}</div>
+            <div key={i} className="w-7 h-7 rounded flex items-center justify-center text-xs cursor-default transition-colors hover:bg-white/8" style={{ color: '#7878a0' }}>{icon}</div>
           ))}
-          <div className="w-px h-4 mx-2" style={{ background: '#2e2e3e' }} />
-          <span className="text-xs" style={{ color: '#55556a' }}>100%</span>
+          <div className="w-px h-4 mx-2" style={{ background: '#2a2a3e' }} />
+          <span className="text-xs" style={{ color: '#4a4a68' }}>100%</span>
           {hasUploadedSlides && (
-            <span className="ml-3 text-xs font-medium" style={{ color: '#6868a0' }}>
+            <span className="ml-3 text-xs font-medium" style={{ color: '#6060909' }}>
               Slide {selectedSlide + 1} / {uploadedSlides.length}
             </span>
           )}
@@ -152,7 +154,7 @@ export default function AppShell({
         {/* Canvas area */}
         <div className="flex-1 flex overflow-hidden">
           {/* Slide strip */}
-          <div className="w-[68px] flex flex-col items-center py-3 gap-2 overflow-y-auto shrink-0 border-r" style={{ background: '#16161e', borderColor: '#2a2a38' }}>
+          <div className="w-[68px] flex flex-col items-center py-3 gap-2 overflow-y-auto shrink-0 border-r" style={{ background: '#111118', borderColor: '#252538' }}>
             {hasUploadedSlides ? (
               uploadedSlides.map((slideUrl, i) => {
                 const itemsOnSlide = placedItems.filter(it => it.slideIndex === i).length;
@@ -163,13 +165,13 @@ export default function AppShell({
                     className="relative w-12 rounded overflow-hidden shrink-0 transition-all"
                     style={{
                       height: '36px',
-                      outline: i === selectedSlide ? '2px solid #4f6ef7' : '2px solid transparent',
+                      outline: i === selectedSlide ? '2px solid #5b7af8' : '2px solid transparent',
                       outlineOffset: '1px',
                     }}
                   >
                     <img src={slideUrl} className="w-full h-full object-cover" alt={`Slide ${i + 1}`} />
                     {itemsOnSlide > 0 && (
-                      <div className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center text-white font-bold" style={{ fontSize: '8px', background: '#4f6ef7' }}>
+                      <div className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center text-white font-bold" style={{ fontSize: '8px', background: '#5b7af8' }}>
                         {itemsOnSlide}
                       </div>
                     )}
@@ -179,11 +181,11 @@ export default function AppShell({
             ) : (
               [1,2,3,4,5,6].map(i => (
                 <div key={i} className="w-12 rounded overflow-hidden shrink-0 flex items-center justify-center transition-all"
-                  style={{ height: '36px', background: '#22222e', outline: i === 1 ? '2px solid #4285F4' : '2px solid transparent', outlineOffset: '1px' }}>
+                  style={{ height: '36px', background: '#1e1e2e', outline: i === 1 ? '2px solid #4285F4' : '2px solid transparent', outlineOffset: '1px' }}>
                   {i === 1 && slideImage ? (
                     <img src={slideImage} className="w-full h-full object-cover" alt="" />
                   ) : (
-                    <span className="text-xs" style={{ color: '#44445a' }}>{i}</span>
+                    <span className="text-xs" style={{ color: '#3a3a58' }}>{i}</span>
                   )}
                 </div>
               ))
@@ -191,19 +193,19 @@ export default function AppShell({
           </div>
 
           {/* Main slide canvas */}
-          <div className="flex-1 flex items-center justify-center p-10" style={{ background: '#1a1a22' }}>
+          <div className="flex-1 flex items-center justify-center p-10" style={{ background: '#141420' }}>
             <div
               ref={slideRef}
               className="w-full max-w-3xl aspect-video rounded-md shadow-2xl overflow-hidden relative select-none"
-              style={{ background: '#fff', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }}
+              style={{ background: '#fff', boxShadow: '0 25px 60px rgba(0,0,0,0.7)' }}
               onPointerMove={onSlidePointerMove}
               onPointerUp={onSlidePointerUp}
               onPointerLeave={onSlidePointerUp}
             >
               {generating ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-20" style={{ background: '#08080f' }}>
-                  <div className="w-10 h-10 rounded-full border-2 animate-spin mb-4" style={{ borderColor: '#4f6ef720', borderTopColor: '#4f6ef7' }} />
-                  <p className="text-sm font-medium tracking-tight" style={{ color: '#8080a8' }}>Generating…</p>
+                  <div className="w-10 h-10 rounded-full border-2 animate-spin mb-4" style={{ borderColor: '#5b7af820', borderTopColor: '#5b7af8' }} />
+                  <p className="text-sm font-medium tracking-tight" style={{ color: '#7070a0' }}>Generating…</p>
                 </div>
               ) : currentSlideImage ? (
                 <img src={currentSlideImage} alt={`Slide ${selectedSlide + 1}`} className="absolute inset-0 w-full h-full" style={{ objectFit: 'contain', background: '#fff' }} draggable={false} />
@@ -228,15 +230,15 @@ export default function AppShell({
                   className="group"
                 >
                   <img src={item.url} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', pointerEvents: 'none' }} alt="" />
-                  <div className="absolute inset-0 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ outline: '2px solid #4f6ef7', outlineOffset: '-1px' }} />
+                  <div className="absolute inset-0 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ outline: '2px solid #5b7af8', outlineOffset: '-1px' }} />
                   <div className="absolute -top-7 left-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onPointerDown={e => e.stopPropagation()}
                       onClick={() => onRemoveBg?.(item.id)}
                       className="text-xs px-2 py-0.5 rounded font-medium transition-colors"
-                      style={{ background: '#22222e', color: '#9090a8', border: '1px solid #2e2e3e' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#4f6ef7'; (e.currentTarget as HTMLElement).style.color = '#fff'; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#22222e'; (e.currentTarget as HTMLElement).style.color = '#9090a8'; }}
+                      style={{ background: '#1e1e30', color: '#9090b8', border: '1px solid #2a2a3e' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#5b7af8'; (e.currentTarget as HTMLElement).style.color = '#fff'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#1e1e30'; (e.currentTarget as HTMLElement).style.color = '#9090b8'; }}
                     >
                       Remove BG
                     </button>
@@ -257,7 +259,7 @@ export default function AppShell({
                         right: corner.includes('e') ? -4 : 'auto', left: corner.includes('w') ? -4 : 'auto',
                         bottom: corner.includes('s') ? -4 : 'auto', top: corner.includes('n') ? -4 : 'auto',
                         width: 8, height: 8, cursor: `${corner}-resize`,
-                        background: '#4f6ef7', border: '1.5px solid #fff', borderRadius: 1, zIndex: 20, opacity: 0,
+                        background: '#5b7af8', border: '1.5px solid #fff', borderRadius: 1, zIndex: 20, opacity: 0,
                       }}
                       className="group-hover:opacity-100 transition-opacity"
                       onPointerDown={(e) => { e.stopPropagation(); startDrag(e, item, 'resize'); }}
@@ -275,17 +277,24 @@ export default function AppShell({
       </div>
 
       {/* PixelMuse Present sidebar */}
-      <div className="w-[390px] flex flex-col shrink-0 border-l" style={{ background: '#0c0c14', borderColor: '#1e1e2a' }}>
-        {/* Header */}
-        <div className="px-4 py-3 flex items-center gap-3 shrink-0 border-b" style={{ background: '#0c0c14', borderColor: '#1e1e2a' }}>
-          <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 border" style={{ background: '#14141e', borderColor: '#2a2a3a' }}>
-            <span className="font-bold text-xs tracking-tight" style={{ color: '#f0f0f8' }}>PM</span>
-          </div>
+      <div className="w-[380px] flex flex-col shrink-0 border-l" style={{ background: '#0c0c18', borderColor: '#1e1e30' }}>
+        {/* Persistent header — always visible, PM logo navigates home */}
+        <div className="px-4 py-3 flex items-center gap-3 shrink-0 border-b" style={{ background: '#0c0c18', borderColor: '#1e1e30' }}>
+          <button
+            onClick={() => { window.dispatchEvent(new Event('storage')); router.push('/'); }}
+            className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 border transition-colors"
+            style={{ background: '#161624', borderColor: '#252538' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#1e1e30'; (e.currentTarget as HTMLElement).style.borderColor = '#5b7af8'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#161624'; (e.currentTarget as HTMLElement).style.borderColor = '#252538'; }}
+            title="Back to Dashboard"
+          >
+            <span className="font-bold text-xs tracking-tight" style={{ color: '#c8c8e8' }}>PM</span>
+          </button>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold tracking-tight leading-tight" style={{ color: '#f0f0f8' }}>PixelMuse Present</p>
-            <p className="text-xs leading-tight" style={{ color: '#44445a' }}>AI literacy trainer</p>
+            <p className="text-sm font-semibold tracking-tight leading-tight" style={{ color: '#eeeef8' }}>PixelMuse Present</p>
+            <p className="text-xs leading-tight" style={{ color: '#6868a0' }}>AI literacy trainer</p>
           </div>
-          <span className="text-xs font-medium" style={{ color: '#333345' }}>beta</span>
+          <span className="text-xs font-medium" style={{ color: '#3a3a58' }}>beta</span>
         </div>
         <div className="flex-1 overflow-y-auto">
           {children}

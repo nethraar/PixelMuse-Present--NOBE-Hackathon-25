@@ -107,33 +107,33 @@ const CATEGORY_BRIEF: Record<string, string> = {
 
 function ScoreDisplay({ score, mode }: { score: PromptScore; mode: Mode }) {
   const isPro = mode === 'professional';
-  const barBg = isPro ? '#3b82f6' : '#f59e0b';
-  const scoreColor = score.overall >= 70 ? '#3d9970' : score.overall >= 45 ? '#d4900a' : '#c05050';
+  const barBg = isPro ? '#4b8ef0' : '#f0a030';
+  const scoreColor = score.overall >= 70 ? '#3eca7a' : score.overall >= 45 ? '#f0a030' : '#e87070';
   return (
-    <div className="rounded-md overflow-hidden border" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
-      <div className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: '#1e1e2a', background: '#12121e' }}>
+    <div className="rounded-md overflow-hidden border" style={{ background: '#111120', borderColor: '#1e1e30' }}>
+      <div className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: '#1e1e30' }}>
         <div>
-          <p className="text-sm font-semibold tracking-tight" style={{ color: '#d0d0e8' }}>Prompt Score</p>
-          <p className="text-xs mt-0.5" style={{ color: '#33334a' }}>AI literacy rating</p>
+          <p className="text-sm font-semibold tracking-tight" style={{ color: '#ddddf0' }}>Prompt Score</p>
+          <p className="text-xs mt-0.5" style={{ color: '#6868a0' }}>AI literacy rating</p>
         </div>
         <div className="text-right">
           <span className="font-bold text-3xl leading-none tracking-tight" style={{ color: scoreColor }}>{score.overall}</span>
-          <span className="text-sm ml-0.5" style={{ color: '#33334a' }}>/100</span>
+          <span className="text-sm ml-0.5" style={{ color: '#4a4a68' }}>/100</span>
         </div>
       </div>
       <div className="px-4 py-3 space-y-2.5">
         {([['Specificity', score.specificity], ['Style', score.style], ['Context', score.context]] as [string, number][]).map(([label, val]) => (
           <div key={label} className="flex items-center gap-3">
-            <span className="text-xs w-20 shrink-0" style={{ color: '#44445a' }}>{label}</span>
-            <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: '#1e1e2a' }}>
+            <span className="text-xs w-20 shrink-0 font-medium" style={{ color: '#7878a0' }}>{label}</span>
+            <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: '#1e1e30' }}>
               <div className="h-full rounded-full transition-all duration-700" style={{ width: `${val}%`, background: barBg }} />
             </div>
-            <span className="text-xs w-6 text-right font-medium tabular-nums" style={{ color: isPro ? '#6090d0' : '#c09040' }}>{val}</span>
+            <span className="text-xs w-6 text-right font-bold tabular-nums" style={{ color: barBg }}>{val}</span>
           </div>
         ))}
-        <div className="pt-2 border-t flex items-start gap-2" style={{ borderColor: '#1a1a26' }}>
-          <span className="text-xs shrink-0 mt-0.5" style={{ color: '#44445a' }}>→</span>
-          <p className="text-xs leading-relaxed" style={{ color: isPro ? '#7090c8' : '#b08040' }}>{score.tip}</p>
+        <div className="pt-2 border-t flex items-start gap-2" style={{ borderColor: '#1e1e30' }}>
+          <span className="text-xs shrink-0 mt-0.5 font-bold" style={{ color: barBg }}>→</span>
+          <p className="text-xs leading-relaxed" style={{ color: '#9898bc' }}>{score.tip}</p>
         </div>
       </div>
     </div>
@@ -335,6 +335,9 @@ export default function ProjectPage() {
 
   const chips = mode === 'professional' ? PRO_CHIPS : PERSONAL_CHIPS;
   const isPro = mode === 'professional';
+  const modeColor = isPro ? '#4b8ef0' : '#f0a030';
+  const modeBg = isPro ? '#0d1a2e' : '#2a1800';
+  const modeBorder = isPro ? '#1a3050' : '#3a2200';
 
   if (!project) return null;
 
@@ -366,27 +369,18 @@ export default function ProjectPage() {
       loadingSlides={loadingSlides}
     >
       <div className="flex flex-col h-full">
-        {/* Project header */}
-        <div className="px-4 pt-3 pb-3 border-b" style={{ borderColor: '#1e1e2a' }}>
-          <button
-            onClick={() => { window.dispatchEvent(new Event('storage')); router.push('/'); }}
-            className="flex items-center gap-1 text-xs mb-2 transition-colors"
-            style={{ color: '#33334a' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#9090a8'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#33334a'; }}
-          >
-            ← Dashboard
-          </button>
-          <div className="flex items-start justify-between gap-2">
-            <h2 className="text-sm font-semibold tracking-tight leading-tight" style={{ color: '#f0f0f8' }}>{project.title}</h2>
-            <span className="text-xs px-2 py-0.5 rounded shrink-0 font-medium" style={{ background: isPro ? '#0d1a2e' : '#2a1a00', color: isPro ? '#6090d0' : '#c09040', border: `1px solid ${isPro ? '#1a3050' : '#3a2500'}` }}>
+        {/* Sticky project header */}
+        <div className="px-4 pt-4 pb-3 border-b shrink-0" style={{ borderColor: '#1e1e30' }}>
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <h2 className="text-sm font-semibold tracking-tight leading-tight" style={{ color: '#eeeef8' }}>{project.title}</h2>
+            <span className="text-xs px-2 py-0.5 rounded shrink-0 font-semibold" style={{ background: modeBg, color: modeColor, border: `1px solid ${modeBorder}` }}>
               {isPro ? 'Pro' : 'Personal'}
             </span>
           </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-xs capitalize" style={{ color: '#33334a' }}>{project.category}</span>
-            {project.platform && <span className="text-xs" style={{ color: '#2a2a3a' }}>· {project.platform === 'google-slides' ? 'Google Slides' : 'PowerPoint'}</span>}
-            <span className="text-xs" style={{ color: '#22222e' }}>· {assets.length} assets</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs capitalize" style={{ color: '#7878a0' }}>{project.category}</span>
+            {project.platform && <span className="text-xs" style={{ color: '#5858809' }}>· {project.platform === 'google-slides' ? 'Google Slides' : 'PowerPoint'}</span>}
+            <span className="text-xs" style={{ color: '#4a4a68' }}>· {assets.length} assets</span>
           </div>
           {/* Progress tracker */}
           <div className="flex gap-3 mt-2.5">
@@ -397,9 +391,9 @@ export default function ProjectPage() {
                   const updated = { ...project, progressStatus: { ...project.progressStatus, [key]: !done } };
                   saveProject(updated);
                   setProject(updated);
-                }} className="flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full transition-colors" style={{ background: done ? (isPro ? '#3b82f6' : '#f59e0b') : '#2a2a3a' }} />
-                  <span className="text-xs" style={{ color: done ? (isPro ? '#6090d0' : '#c09040') : '#33334a' }}>{label}</span>
+                }} className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full transition-colors" style={{ background: done ? modeColor : '#252538' }} />
+                  <span className="text-xs font-medium" style={{ color: done ? modeColor : '#5050809' }}>{label}</span>
                 </button>
               );
             })}
@@ -407,16 +401,16 @@ export default function ProjectPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b shrink-0" style={{ borderColor: '#1e1e2a' }}>
+        <div className="flex border-b shrink-0" style={{ borderColor: '#1e1e30' }}>
           {(['generate','assets','brief','export'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)}
-              className="flex-1 py-2 text-xs font-medium capitalize transition-colors"
+              className="flex-1 py-2 text-xs font-semibold capitalize transition-colors"
               style={{
-                color: tab === t ? '#f0f0f8' : '#44445a',
-                borderBottom: tab === t ? `2px solid ${isPro ? '#3b82f6' : '#f59e0b'}` : '2px solid transparent',
+                color: tab === t ? '#eeeef8' : '#5858809',
+                borderBottom: tab === t ? `2px solid ${modeColor}` : '2px solid transparent',
               }}
-              onMouseEnter={e => { if (tab !== t) (e.currentTarget as HTMLElement).style.color = '#9090a8'; }}
-              onMouseLeave={e => { if (tab !== t) (e.currentTarget as HTMLElement).style.color = '#44445a'; }}
+              onMouseEnter={e => { if (tab !== t) (e.currentTarget as HTMLElement).style.color = '#9898bc'; }}
+              onMouseLeave={e => { if (tab !== t) (e.currentTarget as HTMLElement).style.color = '#5858809'; }}
             >
               {t}
             </button>
@@ -428,13 +422,13 @@ export default function ProjectPage() {
           {tab === 'generate' && (
             <>
               {/* Mode toggle */}
-              <div className="flex rounded-md p-1 gap-1 border" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
+              <div className="flex rounded-md p-1 gap-1 border" style={{ background: '#111120', borderColor: '#1e1e30' }}>
                 {(['professional','personal'] as Mode[]).map(m => (
                   <button key={m} onClick={() => setMode(m)}
-                    className="flex-1 py-1.5 rounded text-xs font-medium transition-all"
+                    className="flex-1 py-1.5 rounded text-xs font-semibold transition-all"
                     style={{
-                      background: mode === m ? (m === 'professional' ? '#3b82f6' : '#f59e0b') : 'transparent',
-                      color: mode === m ? '#fff' : '#44445a',
+                      background: mode === m ? (m === 'professional' ? '#4b8ef0' : '#f0a030') : 'transparent',
+                      color: mode === m ? '#fff' : '#7878a0',
                     }}
                   >
                     {m === 'professional' ? 'Professional' : 'Personal'}
@@ -445,31 +439,29 @@ export default function ProjectPage() {
               {/* Icon mode toggle */}
               <button
                 onClick={() => setIconMode(v => !v)}
-                className="w-full flex items-center justify-between px-3 py-2 rounded-md border transition-all text-xs font-medium"
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-md border transition-all text-xs font-medium"
                 style={{
-                  background: iconMode ? '#0e1520' : '#0e0e18',
-                  borderColor: iconMode ? '#1a3050' : '#1e1e2a',
-                  color: iconMode ? '#6090d0' : '#44445a',
+                  background: iconMode ? '#0d1a2e' : '#111120',
+                  borderColor: iconMode ? '#4b8ef0' : '#1e1e30',
+                  color: iconMode ? '#7ab0f0' : '#7878a0',
                 }}
-                onMouseEnter={e => { if (!iconMode) (e.currentTarget as HTMLElement).style.borderColor = '#2a2a3a'; }}
-                onMouseLeave={e => { if (!iconMode) (e.currentTarget as HTMLElement).style.borderColor = '#1e1e2a'; }}
               >
                 <span>Icon / Symbol mode</span>
-                <span className="text-xs px-2 py-0.5 rounded" style={{ background: iconMode ? '#1a3050' : '#1a1a26', color: iconMode ? '#6090d0' : '#33334a' }}>
-                  {iconMode ? 'ON — flat + auto remove BG' : 'OFF'}
+                <span className="text-xs px-2 py-0.5 rounded font-semibold" style={{ background: iconMode ? '#1a3050' : '#1c1c2e', color: iconMode ? '#7ab0f0' : '#5858809' }}>
+                  {iconMode ? 'ON' : 'OFF'}
                 </span>
               </button>
 
               {/* Suggestion chips */}
               <div>
-                <p className="text-xs mb-1.5" style={{ color: '#33334a' }}>Quick starts</p>
+                <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: '#4a4a68', letterSpacing: '0.1em' }}>Quick starts</p>
                 <div className="flex flex-wrap gap-1.5">
                   {chips.map(chip => (
                     <button key={chip} onClick={() => setPrompt(chip)}
-                      className="text-xs px-2.5 py-1 rounded transition-colors border"
-                      style={{ background: '#0e0e18', borderColor: isPro ? '#1a2a40' : '#2a1e0a', color: '#6060a0' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#9090c0'; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#6060a0'; }}
+                      className="text-xs px-2.5 py-1 rounded transition-all border"
+                      style={{ background: '#111120', borderColor: '#1e1e30', color: '#7878a0' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#c8c8e8'; (e.currentTarget as HTMLElement).style.borderColor = '#252538'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#7878a0'; (e.currentTarget as HTMLElement).style.borderColor = '#1e1e30'; }}
                     >
                       {chip}
                     </button>
@@ -480,33 +472,33 @@ export default function ProjectPage() {
               {/* Prompt input */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <p className="text-xs font-medium" style={{ color: '#44445a' }}>Your prompt</p>
-                  <span className="text-xs" style={{ color: '#2a2a3a' }}>{prompt.length} chars</span>
+                  <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#4a4a68', letterSpacing: '0.1em' }}>Prompt</p>
+                  <span className="text-xs" style={{ color: '#4a4a68' }}>{prompt.length} chars</span>
                 </div>
                 <textarea
                   value={prompt}
                   onChange={e => setPrompt(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleGenerate(); }}
-                  placeholder={isPro ? 'Describe your presentation visual in detail...' : 'Describe your fun image...'}
+                  placeholder={isPro ? 'Describe your presentation visual...' : 'Describe your fun image...'}
                   rows={3}
                   className="w-full rounded-md px-3 py-2.5 text-sm focus:outline-none resize-none transition-colors border"
                   style={{
                     background: '#0a0a14',
-                    color: '#d0d0e8',
-                    borderColor: '#1e1e2a',
-                    caretColor: isPro ? '#3b82f6' : '#f59e0b',
+                    color: '#ddddf0',
+                    borderColor: '#1e1e30',
+                    caretColor: modeColor,
                   }}
-                  onFocus={e => { (e.currentTarget as HTMLElement).style.borderColor = isPro ? '#3b82f6' : '#f59e0b'; }}
-                  onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = '#1e1e2a'; }}
+                  onFocus={e => { (e.currentTarget as HTMLElement).style.borderColor = modeColor; }}
+                  onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = '#1e1e30'; }}
                 />
-                <p className="text-xs mt-1" style={{ color: '#22222e' }}>⌘↩ to generate</p>
+                <p className="text-xs mt-1" style={{ color: '#3a3a58' }}>⌘↩ to generate</p>
               </div>
 
               <button
                 onClick={handleGenerate}
                 disabled={generating || !prompt.trim()}
                 className="w-full font-semibold py-2.5 rounded-md text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ background: isPro ? '#3b82f6' : '#f59e0b', color: '#fff' }}
+                style={{ background: modeColor, color: '#fff' }}
               >
                 {generating ? (
                   <>
@@ -520,53 +512,53 @@ export default function ProjectPage() {
 
               {genError && (
                 <div className="rounded-md border px-4 py-3 text-center" style={{ background: '#1a0e0e', borderColor: '#3a1a1a' }}>
-                  <p className="text-sm font-medium" style={{ color: '#e06060' }}>Generation failed</p>
-                  <p className="text-xs mt-1" style={{ color: '#804040' }}>Image service timed out. Try a simpler prompt or retry.</p>
-                  <button onClick={handleGenerate} className="mt-2 text-xs underline" style={{ color: '#e06060' }}>Retry</button>
+                  <p className="text-sm font-semibold" style={{ color: '#e87070' }}>Generation failed</p>
+                  <p className="text-xs mt-1" style={{ color: '#905050' }}>Image service timed out. Try a simpler prompt or retry.</p>
+                  <button onClick={handleGenerate} className="mt-2 text-xs underline" style={{ color: '#e87070' }}>Retry</button>
                 </div>
               )}
 
               {generatedUrl && (
                 <div className="space-y-3 pt-1">
-                  <div className="rounded-md overflow-hidden border" style={{ borderColor: '#1e1e2a' }}>
+                  <div className="rounded-md overflow-hidden border" style={{ borderColor: '#1e1e30' }}>
                     <img src={generatedUrl} alt="Generated" className="w-full object-cover" />
-                    <div className="px-3 py-2.5 space-y-2" style={{ background: '#0e0e18' }}>
+                    <div className="px-3 py-2.5 space-y-2" style={{ background: '#111120' }}>
                       <div className="flex gap-2">
                         <button
                           onClick={handleSave}
                           disabled={saved}
-                          className="flex-1 text-xs font-medium py-2 rounded-md transition-colors"
-                          style={{ background: saved ? '#1a1a26' : '#0d2a1a', color: saved ? '#44445a' : '#3d9970', border: `1px solid ${saved ? '#2a2a3a' : '#1a4030'}` }}
+                          className="flex-1 text-xs font-semibold py-2 rounded-md transition-colors"
+                          style={{ background: saved ? '#161628' : '#0d2a1a', color: saved ? '#5858809' : '#3eca7a', border: `1px solid ${saved ? '#1e1e30' : '#1a4030'}` }}
                         >
                           {saved ? '✓ Saved' : '↓ Save to Project'}
                         </button>
                         <button
                           onClick={placeOnSlide}
                           disabled={placed || removingBg}
-                          className="flex-1 text-xs font-medium py-2 rounded-md transition-all disabled:opacity-60"
-                          style={{ background: placed ? '#1a1a26' : '#0d1a2e', color: placed ? '#44445a' : '#6090d0', border: `1px solid ${placed ? '#2a2a3a' : '#1a3050'}` }}
+                          className="flex-1 text-xs font-semibold py-2 rounded-md transition-all disabled:opacity-60"
+                          style={{ background: placed ? '#161628' : modeBg, color: placed ? '#5858809' : modeColor, border: `1px solid ${placed ? '#1e1e30' : modeBorder}` }}
                         >
                           {removingBg ? 'Removing BG…' : placed ? '✓ On Slide' : '⊞ Place on Slide'}
                         </button>
                         <button
                           onClick={() => { setPrompt(''); setGeneratedUrl(null); setScore(null); setSaved(false); setPlaced(false); }}
                           className="px-3 py-2 rounded-md text-xs transition-colors"
-                          style={{ background: '#1a1a26', color: '#44445a', border: '1px solid #2a2a3a' }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#22222e'; }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#1a1a26'; }}
+                          style={{ background: '#161628', color: '#6868a0', border: '1px solid #1e1e30' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#1c1c2e'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#161628'; }}
                         >
                           ✕
                         </button>
                       </div>
-                      <p className="text-xs text-center" style={{ color: '#2a2a3a' }}>Place on Slide → drag &amp; resize on canvas</p>
+                      <p className="text-xs text-center" style={{ color: '#4a4a68' }}>Place on Slide → drag &amp; resize on canvas</p>
                     </div>
                   </div>
                   {score && <ScoreDisplay score={score} mode={mode} />}
                   {!score && generating === false && (
-                    <div className="rounded-md border px-4 py-3" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
+                    <div className="rounded-md border px-4 py-3" style={{ background: '#111120', borderColor: '#1e1e30' }}>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 border-2 rounded-full animate-spin" style={{ borderColor: '#2a2a4a', borderTopColor: '#4f6ef7' }} />
-                        <span className="text-xs" style={{ color: '#44445a' }}>Scoring your prompt…</span>
+                        <div className="w-3 h-3 border-2 rounded-full animate-spin" style={{ borderColor: '#252538', borderTopColor: '#5b7af8' }} />
+                        <span className="text-xs" style={{ color: '#7878a0' }}>Scoring your prompt…</span>
                       </div>
                     </div>
                   )}
@@ -578,30 +570,33 @@ export default function ProjectPage() {
           {/* ASSETS TAB */}
           {tab === 'assets' && (
             <>
-              <p className="text-xs" style={{ color: '#33334a' }}>{assets.length} saved visual{assets.length !== 1 ? 's' : ''}</p>
+              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#4a4a68', letterSpacing: '0.1em' }}>
+                {assets.length} saved visual{assets.length !== 1 ? 's' : ''}
+              </p>
               {assets.length === 0 ? (
-                <div className="text-center py-8 text-sm" style={{ color: '#2a2a3a' }}>
-                  No saved assets yet.<br />Generate and save visuals first.
+                <div className="text-center py-10">
+                  <p className="text-sm font-medium mb-1" style={{ color: '#6868a0' }}>No saved assets yet</p>
+                  <p className="text-xs" style={{ color: '#3a3a58' }}>Generate and save visuals first.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2">
                   {assets.map(a => (
-                    <div key={a.id} className="rounded-md overflow-hidden border" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
+                    <div key={a.id} className="rounded-md overflow-hidden border" style={{ background: '#111120', borderColor: '#1e1e30' }}>
                       <img src={a.url} alt={a.prompt} className="w-full aspect-video object-cover" />
                       <div className="p-2 space-y-1.5">
-                        <p className="text-xs leading-tight line-clamp-2" style={{ color: '#44445a' }}>{a.prompt}</p>
+                        <p className="text-xs leading-tight line-clamp-2" style={{ color: '#9898bc' }}>{a.prompt}</p>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium" style={{ color: a.mode === 'professional' ? '#6090d0' : '#c09040' }}>
+                          <span className="text-xs font-semibold" style={{ color: a.mode === 'professional' ? '#4b8ef0' : '#f0a030' }}>
                             {a.mode === 'professional' ? 'Pro' : 'Personal'}
                           </span>
-                          <span className="text-xs font-medium tabular-nums" style={{ color: a.mode === 'professional' ? '#6090d0' : '#c09040' }}>{a.promptScore.overall}</span>
+                          <span className="text-xs font-bold tabular-nums" style={{ color: a.mode === 'professional' ? '#4b8ef0' : '#f0a030' }}>{a.promptScore.overall}</span>
                         </div>
                         <button
                           onClick={() => { setPrompt(a.prompt); setMode(a.mode); setTab('generate'); }}
                           className="w-full text-xs text-left transition-colors"
-                          style={{ color: '#33334a' }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#6090d0'; }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#33334a'; }}
+                          style={{ color: '#6868a0' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#9898bc'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#6868a0'; }}
                         >
                           ↺ Reuse style
                         </button>
@@ -616,20 +611,20 @@ export default function ProjectPage() {
           {/* BRIEF TAB */}
           {tab === 'brief' && (
             <div className="space-y-3">
-              <div className="rounded-md px-3 py-2.5 border" style={{ background: '#0e0e18', borderLeft: `3px solid ${isPro ? '#3b82f6' : '#f59e0b'}`, borderColor: isPro ? '#1a3050' : '#2a1e0a' }}>
-                <p className="text-xs font-medium mb-1" style={{ color: isPro ? '#6090d0' : '#c09040' }}>
+              <div className="rounded-md px-4 py-3 border" style={{ background: '#111120', borderColor: '#1e1e30', borderLeft: `3px solid ${modeColor}` }}>
+                <p className="text-xs font-semibold mb-1" style={{ color: modeColor }}>
                   {isPro ? 'Professional Mode' : 'Personal Mode'}
                 </p>
-                <p className="text-xs leading-relaxed" style={{ color: '#6060a0' }}>
+                <p className="text-xs leading-relaxed" style={{ color: '#8888a8' }}>
                   {isPro
                     ? 'Clean, slide-ready visuals for presentations. Prompts tuned for clarity, minimal design, and professional context.'
                     : 'Fun, expressive visuals for personal use. Prompts tuned for creativity, humor, and shareability.'}
                 </p>
               </div>
 
-              <div className="rounded-md border" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
-                <div className="px-4 py-3 border-b" style={{ borderColor: '#1e1e2a' }}>
-                  <p className="text-sm font-semibold tracking-tight" style={{ color: '#d0d0e8' }}>Project Details</p>
+              <div className="rounded-md border overflow-hidden" style={{ background: '#111120', borderColor: '#1e1e30' }}>
+                <div className="px-4 py-3 border-b" style={{ borderColor: '#1e1e30' }}>
+                  <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#4a4a68', letterSpacing: '0.1em' }}>Project Details</p>
                 </div>
                 <div className="px-4 py-3 space-y-2.5">
                   {[
@@ -641,17 +636,17 @@ export default function ProjectPage() {
                     ['Last updated', project.updatedAt],
                     ['Assets saved', `${assets.length} visual${assets.length !== 1 ? 's' : ''}`],
                   ].map(([label, value]) => (
-                    <div key={label} className="flex gap-2">
-                      <span className="text-xs w-24 shrink-0" style={{ color: '#33334a' }}>{label}</span>
-                      <span className="text-xs leading-relaxed" style={{ color: '#7070a0' }}>{value}</span>
+                    <div key={label} className="flex gap-3">
+                      <span className="text-xs w-24 shrink-0 font-medium" style={{ color: '#6868a0' }}>{label}</span>
+                      <span className="text-xs leading-relaxed" style={{ color: '#9898bc' }}>{value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="rounded-md border" style={{ background: '#0e0e18', borderColor: '#1e1e2a' }}>
-                <div className="px-4 py-3 border-b" style={{ borderColor: '#1e1e2a' }}>
-                  <p className="text-sm font-semibold tracking-tight" style={{ color: '#d0d0e8' }}>Visual Checklist</p>
+              <div className="rounded-md border overflow-hidden" style={{ background: '#111120', borderColor: '#1e1e30' }}>
+                <div className="px-4 py-3 border-b" style={{ borderColor: '#1e1e30' }}>
+                  <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#4a4a68', letterSpacing: '0.1em' }}>Visual Checklist</p>
                 </div>
                 <div className="px-4 py-1">
                   {([['Cover', 'cover'], ['Diagram', 'diagram'], ['Section Divider', 'divider'], ['Extras', 'extras']] as [string, keyof typeof project.progressStatus][]).map(([label, key]) => (
@@ -659,16 +654,19 @@ export default function ProjectPage() {
                       const updated = { ...project, progressStatus: { ...project.progressStatus, [key]: !project.progressStatus[key] } };
                       saveProject(updated);
                       setProject(updated);
-                    }} className="w-full flex items-center gap-3 py-2.5 border-b last:border-0 transition-colors"
-                    style={{ borderColor: '#1a1a26' }}>
+                    }} className="w-full flex items-center gap-3 py-2.5 border-b last:border-0 transition-all group"
+                    style={{ borderColor: '#1a1a2e' }}>
                       <div className="w-3.5 h-3.5 rounded-sm border flex items-center justify-center shrink-0 transition-colors"
                         style={{
-                          background: project.progressStatus[key] ? (isPro ? '#3b82f6' : '#f59e0b') : 'transparent',
-                          borderColor: project.progressStatus[key] ? (isPro ? '#3b82f6' : '#f59e0b') : '#2a2a3a',
+                          background: project.progressStatus[key] ? modeColor : 'transparent',
+                          borderColor: project.progressStatus[key] ? modeColor : '#252538',
                         }}>
                         {project.progressStatus[key] && <span className="text-white font-bold" style={{ fontSize: '9px' }}>✓</span>}
                       </div>
-                      <span className="text-xs" style={{ color: project.progressStatus[key] ? '#33334a' : '#9090a8', textDecoration: project.progressStatus[key] ? 'line-through' : 'none' }}>{label} visual</span>
+                      <span className="text-xs font-medium transition-colors" style={{
+                        color: project.progressStatus[key] ? '#5858809' : '#9898bc',
+                        textDecoration: project.progressStatus[key] ? 'line-through' : 'none'
+                      }}>{label} visual</span>
                     </button>
                   ))}
                 </div>
@@ -679,24 +677,26 @@ export default function ProjectPage() {
           {/* EXPORT TAB */}
           {tab === 'export' && (
             <div className="space-y-3">
-              <p className="text-xs" style={{ color: '#33334a' }}>{assets.length} asset{assets.length !== 1 ? 's' : ''} ready to export</p>
+              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#4a4a68', letterSpacing: '0.1em' }}>
+                {assets.length} asset{assets.length !== 1 ? 's' : ''} ready
+              </p>
 
               <button onClick={handleShareLink}
-                className="w-full font-medium py-2.5 rounded-md text-sm transition-all"
-                style={{ background: '#4f6ef7', color: '#fff' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#6080ff'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#4f6ef7'; }}
+                className="w-full font-semibold py-2.5 rounded-md text-sm transition-all"
+                style={{ background: '#5b7af8', color: '#fff' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#6f8cff'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#5b7af8'; }}
               >
                 {copied ? '✓ Link Copied!' : '↗ Share Project Link'}
               </button>
-              <p className="text-xs text-center" style={{ color: '#2a2a3a' }}>Prompts recipient to start their own project</p>
+              <p className="text-xs text-center" style={{ color: '#4a4a68' }}>Prompts recipient to start their own project</p>
 
               <div className="pt-1 space-y-2">
                 <button
                   onClick={() => alert('Google Slides integration — coming in v2. Download PNGs and insert manually for now.')}
                   className="w-full font-medium py-2 rounded-md text-sm transition-colors border"
-                  style={{ background: '#0d1a2e', borderColor: '#1a3050', color: '#6090d0' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#0e2040'; }}
+                  style={{ background: '#0d1a2e', borderColor: '#1a3050', color: '#7ab0f0' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#101e38'; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#0d1a2e'; }}
                 >
                   Send to Google Slides
@@ -704,8 +704,8 @@ export default function ProjectPage() {
                 <button
                   onClick={() => alert('PowerPoint integration — coming in v2. Download PNGs and insert manually for now.')}
                   className="w-full font-medium py-2 rounded-md text-sm transition-colors border"
-                  style={{ background: '#0d1a2e', borderColor: '#1a3050', color: '#6090d0' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#0e2040'; }}
+                  style={{ background: '#0d1a2e', borderColor: '#1a3050', color: '#7ab0f0' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#101e38'; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#0d1a2e'; }}
                 >
                   Export to PowerPoint
@@ -714,9 +714,9 @@ export default function ProjectPage() {
                   onClick={handleDownload}
                   disabled={assets.length === 0 || downloading}
                   className="w-full font-medium py-2 rounded-md text-sm transition-colors border disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ background: '#1a1a26', borderColor: '#2a2a3a', color: '#d0d0e8' }}
-                  onMouseEnter={e => { if (!downloading && assets.length > 0) (e.currentTarget as HTMLElement).style.background = '#22222e'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#1a1a26'; }}
+                  style={{ background: '#161628', borderColor: '#252538', color: '#c8c8e8' }}
+                  onMouseEnter={e => { if (!downloading && assets.length > 0) (e.currentTarget as HTMLElement).style.background = '#1c1c30'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#161628'; }}
                 >
                   {downloading ? 'Downloading…' : `↓ Download ${assets.length} PNG Asset${assets.length !== 1 ? 's' : ''}`}
                 </button>
