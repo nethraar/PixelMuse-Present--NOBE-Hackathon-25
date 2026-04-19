@@ -15,13 +15,62 @@ const STYLE_LOOK: Record<string, string> = {
   meme:     'bold, high contrast, simple, pop art',
 };
 
-function buildImagePrompt(userPrompt: string, mode: Mode, style: Style): string {
+function buildImagePrompt(userPrompt: string, mode: Mode, style: Style, iconMode: boolean): string {
+  if (iconMode) {
+    // Icon mode: flat vector on pure white — critical for Remove BG to work via blend mode
+    return `flat vector icon, ${userPrompt}, pure white background, simple clean shapes, flat design, no shadows, no gradients, no 3D effects, minimal, solid colors, SVG style, no text, no letters`;
+  }
   const look = STYLE_LOOK[style] ?? 'clean, modern';
   const prefix = mode === 'professional'
     ? 'professional presentation visual,'
     : 'fun digital graphic,';
-  // Keep short — FLUX follows natural language well, long scaffolding hurts more than it helps
   return `${prefix} ${userPrompt}, ${look}, no text, no letters, no watermarks`;
+}
+
+// Canvas-based background removal: samples corner pixels as bg color, removes similar pixels
+async function canvasRemoveBg(dataUrl: string, tolerance = 35): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const d = imageData.data;
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // Sample 4 corners + center-edges to determine bg color
+      const samples = [
+        [0,0], [w-1,0], [0,h-1], [w-1,h-1],
+        [Math.floor(w/2),0], [0,Math.floor(h/2)],
+      ];
+      let rSum = 0, gSum = 0, bSum = 0;
+      for (const [x,y] of samples) {
+        const i = (y * w + x) * 4;
+        rSum += d[i]; gSum += d[i+1]; bSum += d[i+2];
+      }
+      const bgR = rSum / samples.length;
+      const bgG = gSum / samples.length;
+      const bgB = bSum / samples.length;
+
+      // Remove pixels within tolerance of bg color (simple threshold, no flood fill)
+      for (let i = 0; i < d.length; i += 4) {
+        const diff = Math.abs(d[i] - bgR) + Math.abs(d[i+1] - bgG) + Math.abs(d[i+2] - bgB);
+        if (diff < tolerance * 3) {
+          // Fade out pixels near bg (smooth edges)
+          const alpha = Math.min(255, Math.round((diff / (tolerance * 3)) * 255 * 2));
+          d[i+3] = alpha;
+        }
+      }
+      ctx.putImageData(imageData, 0, 0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = () => resolve(dataUrl); // fallback: return original
+    img.src = dataUrl;
+  });
 }
 
 const PRO_CHIPS = [
@@ -117,6 +166,8 @@ export default function ProjectPage() {
   const [genError, setGenError] = useState(false);
   const [placedItems, setPlacedItems] = useState<PlacedItem[]>([]);
   const [placed, setPlaced] = useState(false);
+  const [iconMode, setIconMode] = useState(false);
+  const [removingBg, setRemovingBg] = useState(false);
 
   useEffect(() => {
     const p = getProject(id);
@@ -135,7 +186,7 @@ export default function ProjectPage() {
     setGenError(false);
     setPlaced(false);
 
-    const imagePrompt = buildImagePrompt(prompt, mode, project.style);
+    const imagePrompt = buildImagePrompt(prompt, mode, project.style, iconMode);
 
     // Score the raw user prompt — not the injected system text
     const scorePromise = fetch('/api/score', {
@@ -189,15 +240,25 @@ export default function ProjectPage() {
     saveProject({ ...project, updatedAt: new Date().toISOString().split('T')[0] });
   }
 
-  function placeOnSlide() {
+  async function placeOnSlide() {
     if (!generatedUrl) return;
     const offset = placedItems.length * 3;
+    let url = generatedUrl;
+
+    if (iconMode) {
+      // Run canvas-based background removal for icon mode
+      setRemovingBg(true);
+      try { url = await canvasRemoveBg(generatedUrl); } catch { /* use original */ }
+      setRemovingBg(false);
+    }
+
     const newItem: PlacedItem = {
       id: `placed-${Date.now()}`,
-      url: generatedUrl,
+      url,
       x: 10 + offset, y: 10 + offset,
-      w: 40, h: 60,
-      removeBg: false,
+      w: iconMode ? 20 : 40,
+      h: iconMode ? 30 : 60,
+      removeBg: false, // Already baked into png via canvas
     };
     setPlacedItems(prev => [...prev, newItem]);
     setPlaced(true);
@@ -234,6 +295,12 @@ export default function ProjectPage() {
       placedItems={placedItems}
       onUpdateItem={(id, patch) => setPlacedItems(prev => prev.map(it => it.id === id ? { ...it, ...patch } : it))}
       onRemoveItem={(id) => setPlacedItems(prev => prev.filter(it => it.id !== id))}
+      onRemoveBg={async (id) => {
+        const item = placedItems.find(it => it.id === id);
+        if (!item) return;
+        const newUrl = await canvasRemoveBg(item.url);
+        setPlacedItems(prev => prev.map(it => it.id === id ? { ...it, url: newUrl } : it));
+      }}
     >
       <div className="flex flex-col h-full">
         {/* Project header */}
@@ -296,6 +363,21 @@ export default function ProjectPage() {
                   </button>
                 ))}
               </div>
+
+              {/* Icon mode toggle */}
+              <button
+                onClick={() => setIconMode(v => !v)}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border transition-colors text-sm font-medium ${iconMode ? 'bg-violet-950 border-violet-700 text-violet-200' : 'border-gray-800 text-gray-400 hover:border-gray-700'}`}
+                style={{ background: iconMode ? undefined : '#111118' }}
+              >
+                <span className="flex items-center gap-2">
+                  <span>🎯</span>
+                  <span>Icon / Symbol mode</span>
+                </span>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${iconMode ? 'bg-violet-700 text-violet-100' : 'bg-gray-800 text-gray-500'}`}>
+                  {iconMode ? 'ON — flat + auto remove BG' : 'OFF'}
+                </span>
+              </button>
 
               {/* Suggestion chips */}
               <div>
@@ -366,10 +448,10 @@ export default function ProjectPage() {
                         </button>
                         <button
                           onClick={placeOnSlide}
-                          disabled={placed}
-                          className={`flex-1 text-white text-xs font-medium py-2 rounded-lg transition-colors ${placed ? 'bg-gray-800 text-gray-400 cursor-default' : 'bg-blue-700 hover:bg-blue-600'}`}
+                          disabled={placed || removingBg}
+                          className={`flex-1 text-white text-xs font-medium py-2 rounded-lg transition-colors ${placed ? 'bg-gray-800 text-gray-400 cursor-default' : 'bg-blue-700 hover:bg-blue-600 disabled:opacity-60'}`}
                         >
-                          {placed ? '✓ On Slide' : '⊞ Place on Slide'}
+                          {removingBg ? 'Removing BG...' : placed ? '✓ On Slide' : '⊞ Place on Slide'}
                         </button>
                         <button
                           onClick={() => { setPrompt(''); setGeneratedUrl(null); setScore(null); setSaved(false); setPlaced(false); }}

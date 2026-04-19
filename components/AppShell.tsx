@@ -35,11 +35,12 @@ interface AppShellProps {
   placedItems?: PlacedItem[];
   onUpdateItem?: (id: string, patch: Partial<PlacedItem>) => void;
   onRemoveItem?: (id: string) => void;
+  onRemoveBg?: (id: string) => void;
 }
 
 export default function AppShell({
   children, slideImage, generating, projectTitle,
-  placedItems = [], onUpdateItem, onRemoveItem,
+  placedItems = [], onUpdateItem, onRemoveItem, onRemoveBg,
 }: AppShellProps) {
   const slideRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -207,10 +208,10 @@ export default function AppShell({
                   <div className="absolute -top-7 left-0 right-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onPointerDown={e => e.stopPropagation()}
-                      onClick={() => onUpdateItem?.(item.id, { removeBg: !item.removeBg })}
-                      className={`text-xs px-1.5 py-0.5 rounded font-medium transition-colors ${item.removeBg ? 'bg-violet-500 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                      onClick={() => onRemoveBg?.(item.id)}
+                      className="text-xs px-1.5 py-0.5 rounded font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-violet-600 hover:text-white"
                     >
-                      {item.removeBg ? '✓ No BG' : 'Remove BG'}
+                      Remove BG
                     </button>
                     <button
                       onPointerDown={e => e.stopPropagation()}
