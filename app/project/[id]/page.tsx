@@ -6,7 +6,6 @@ import AppShell from '@/components/AppShell';
 import { getProject, getAssets, saveAsset, saveProject, addSession } from '@/lib/data';
 import { Project, Asset, Mode, Style, PromptScore } from '@/lib/types';
 
-declare const puter: any;
 
 const STYLE_DESCRIPTORS: Record<string, string> = {
   minimal:  'minimalist flat design, clean white background, simple geometric shapes, lots of negative space',
@@ -152,11 +151,18 @@ export default function ProjectPage() {
 
     const imagePromise = (async () => {
       try {
-        const imgEl = await puter.ai.txt2img(imagePrompt);
-        const url = imgEl?.src || imgEl;
+        const seed = Math.floor(Math.random() * 999999);
+        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?model=flux&width=1024&height=576&nologo=true&seed=${seed}`;
+        // Wait for image to actually load before showing it
+        await new Promise<void>((resolve, reject) => {
+          const img = new window.Image();
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error('Image load failed'));
+          img.src = url;
+        });
         setGeneratedUrl(url);
       } catch {
-        setGeneratedUrl(`https://placehold.co/800x450/1e1b4b/a78bfa?text=${encodeURIComponent(prompt.slice(0, 30))}`);
+        setGeneratedUrl(`https://placehold.co/1024x576/1e1b4b/a78bfa?text=${encodeURIComponent(prompt.slice(0, 30))}`);
       }
     })();
 
