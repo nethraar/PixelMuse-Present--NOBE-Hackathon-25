@@ -7,31 +7,21 @@ import { getProject, getAssets, saveAsset, saveProject, addSession } from '@/lib
 import { Project, Asset, Mode, Style, PromptScore } from '@/lib/types';
 
 
-const STYLE_DESCRIPTORS: Record<string, string> = {
-  minimal:  'minimalist flat design, clean white background, simple geometric shapes, lots of negative space',
-  corporate:'sleek modern corporate design, polished, bold typography-free layout, professional color palette',
-  academic: 'clean infographic style, educational diagram aesthetic, organized layout, muted scholarly tones',
-  fun:      'vibrant colorful illustration, playful cartoon style, bright saturated palette, energetic composition',
-  meme:     'bold high-contrast graphic, simple striking composition, internet humor aesthetic, pop art colors',
+const STYLE_LOOK: Record<string, string> = {
+  minimal:  'minimalist, clean, white background, simple shapes',
+  corporate:'corporate, sleek, professional, modern',
+  academic: 'educational, clean diagram style, organized',
+  fun:      'colorful, playful, vibrant, cartoon',
+  meme:     'bold, high contrast, simple, pop art',
 };
 
-const CATEGORY_DESCRIPTORS: Record<string, string> = {
-  school:     'academic educational visual',
-  club:       'organization branding graphic',
-  internship: 'corporate professional graphic',
-  casual:     'casual social graphic',
-};
-
-function buildImagePrompt(userPrompt: string, mode: Mode, style: Style, category: string): string {
-  const styleDesc = STYLE_DESCRIPTORS[style] ?? 'clean modern design';
-  const categoryDesc = CATEGORY_DESCRIPTORS[category] ?? 'visual graphic';
-  const modeDesc = mode === 'professional'
-    ? 'professional presentation slide visual, suitable for Google Slides,'
-    : 'fun expressive digital graphic,';
-  // Explicitly forbid text rendering — primary cause of garbled multilingual slop
-  const noText = 'absolutely no text, no words, no letters, no numbers, no labels, no captions, no watermarks, no UI elements';
-  const quality = 'high quality, detailed, sharp focus, clean render, 4k, award-winning digital art';
-  return `${modeDesc} ${categoryDesc}, ${userPrompt}, ${styleDesc}, ${quality}, ${noText}`;
+function buildImagePrompt(userPrompt: string, mode: Mode, style: Style): string {
+  const look = STYLE_LOOK[style] ?? 'clean, modern';
+  const prefix = mode === 'professional'
+    ? 'professional presentation visual,'
+    : 'fun digital graphic,';
+  // Keep short — FLUX follows natural language well, long scaffolding hurts more than it helps
+  return `${prefix} ${userPrompt}, ${look}, no text, no letters, no watermarks`;
 }
 
 const PRO_CHIPS = [
@@ -124,6 +114,7 @@ export default function ProjectPage() {
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [genError, setGenError] = useState(false);
 
   useEffect(() => {
     const p = getProject(id);
@@ -139,8 +130,9 @@ export default function ProjectPage() {
     setGeneratedUrl(null);
     setScore(null);
     setSaved(false);
+    setGenError(false);
 
-    const imagePrompt = buildImagePrompt(prompt, mode, project.style, project.category);
+    const imagePrompt = buildImagePrompt(prompt, mode, project.style);
 
     // Score the raw user prompt — not the injected system text
     const scorePromise = fetch('/api/score', {
@@ -151,18 +143,18 @@ export default function ProjectPage() {
 
     const imagePromise = (async () => {
       try {
-        const seed = Math.floor(Math.random() * 999999);
-        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?model=flux&width=1024&height=576&nologo=true&seed=${seed}`;
-        // Wait for image to actually load before showing it
-        await new Promise<void>((resolve, reject) => {
-          const img = new window.Image();
-          img.onload = () => resolve();
-          img.onerror = () => reject(new Error('Image load failed'));
-          img.src = url;
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: imagePrompt }),
         });
-        setGeneratedUrl(url);
-      } catch {
-        setGeneratedUrl(`https://placehold.co/1024x576/1e1b4b/a78bfa?text=${encodeURIComponent(prompt.slice(0, 30))}`);
+        if (!res.ok) throw new Error(`Generate API returned ${res.status}`);
+        const data = await res.json();
+        if (!data.url) throw new Error('No URL in response');
+        setGeneratedUrl(data.url);
+      } catch (e: any) {
+        console.error('Image generation error:', e?.message);
+        setGenError(true);
       }
     })();
 
@@ -329,6 +321,14 @@ export default function ProjectPage() {
                   <>✦ Generate with PixelMuse</>
                 )}
               </button>
+
+              {genError && (
+                <div className="rounded-xl border border-red-900 bg-red-950/50 px-4 py-3 text-center">
+                  <p className="text-red-400 text-sm font-medium">Generation failed</p>
+                  <p className="text-red-500 text-xs mt-1">Image service timed out. Try a simpler prompt or retry.</p>
+                  <button onClick={handleGenerate} className="mt-2 text-xs text-red-400 hover:text-red-300 underline">Retry</button>
+                </div>
+              )}
 
               {generatedUrl && (
                 <div className="space-y-3 pt-1">
