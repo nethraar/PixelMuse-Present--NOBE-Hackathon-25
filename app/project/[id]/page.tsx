@@ -73,27 +73,30 @@ export default function ProjectPage() {
 
     const fullPrompt = `${mode === 'professional' ? 'Professional presentation visual' : 'Fun personal visual'}: ${prompt}. Project: ${project.title}. Style: ${project.style}.`;
 
-    // Fire scorer + image gen simultaneously
-    const [scoreRes] = await Promise.allSettled([
-      fetch('/api/score', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: fullPrompt }) }).then(r => r.json()),
-    ]);
+    // Fire scorer + image gen truly simultaneously
+    const scorePromise = fetch('/api/score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: fullPrompt }),
+    }).then(r => r.json()).then(s => { setScore(s); return s; }).catch(() => null);
 
-    // Puter image generation
-    try {
-      const imgEl = await puter.ai.txt2img(fullPrompt);
-      const url = imgEl?.src || imgEl;
-      setGeneratedUrl(url);
-    } catch {
-      // Fallback placeholder if Puter fails
-      setGeneratedUrl(`https://placehold.co/400x300/1e1b4b/a78bfa?text=${encodeURIComponent(prompt.slice(0, 20))}`);
-    }
+    const imagePromise = (async () => {
+      try {
+        const imgEl = await puter.ai.txt2img(fullPrompt);
+        const url = imgEl?.src || imgEl;
+        setGeneratedUrl(url);
+      } catch {
+        setGeneratedUrl(`https://placehold.co/400x300/1e1b4b/a78bfa?text=${encodeURIComponent(prompt.slice(0, 20))}`);
+      }
+    })();
 
-    if (scoreRes.status === 'fulfilled') setScore(scoreRes.value);
+    await Promise.allSettled([scorePromise, imagePromise]);
     setGenerating(false);
   }
 
   function handleSave() {
-    if (!generatedUrl || !score || !project) return;
+    if (!generatedUrl || !project) return;
+    const fallbackScore: PromptScore = { specificity: 50, style: 50, context: 50, overall: 50, tip: 'Add more detail to improve your score.' };
     const asset: Asset = {
       id: `asset-${Date.now()}`,
       projectId: project.id,
@@ -101,7 +104,7 @@ export default function ProjectPage() {
       prompt,
       mode,
       createdAt: new Date().toISOString().split('T')[0],
-      promptScore: score,
+      promptScore: score ?? fallbackScore,
     };
     saveAsset(asset);
     setAssets(getAssets(project.id));
