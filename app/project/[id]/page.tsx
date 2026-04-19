@@ -4,9 +4,36 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import AppShell from '@/components/AppShell';
 import { getProject, getAssets, saveAsset, saveProject, addSession } from '@/lib/data';
-import { Project, Asset, Mode, PromptScore } from '@/lib/types';
+import { Project, Asset, Mode, Style, PromptScore } from '@/lib/types';
 
 declare const puter: any;
+
+const STYLE_DESCRIPTORS: Record<string, string> = {
+  minimal:  'minimalist flat design, clean white background, simple geometric shapes, lots of negative space',
+  corporate:'sleek modern corporate design, polished, bold typography-free layout, professional color palette',
+  academic: 'clean infographic style, educational diagram aesthetic, organized layout, muted scholarly tones',
+  fun:      'vibrant colorful illustration, playful cartoon style, bright saturated palette, energetic composition',
+  meme:     'bold high-contrast graphic, simple striking composition, internet humor aesthetic, pop art colors',
+};
+
+const CATEGORY_DESCRIPTORS: Record<string, string> = {
+  school:     'academic educational visual',
+  club:       'organization branding graphic',
+  internship: 'corporate professional graphic',
+  casual:     'casual social graphic',
+};
+
+function buildImagePrompt(userPrompt: string, mode: Mode, style: Style, category: string): string {
+  const styleDesc = STYLE_DESCRIPTORS[style] ?? 'clean modern design';
+  const categoryDesc = CATEGORY_DESCRIPTORS[category] ?? 'visual graphic';
+  const modeDesc = mode === 'professional'
+    ? 'professional presentation slide visual, suitable for Google Slides,'
+    : 'fun expressive digital graphic,';
+  // Explicitly forbid text rendering — primary cause of garbled multilingual slop
+  const noText = 'absolutely no text, no words, no letters, no numbers, no labels, no captions, no watermarks, no UI elements';
+  const quality = 'high quality, detailed, sharp focus, clean render, 4k, award-winning digital art';
+  return `${modeDesc} ${categoryDesc}, ${userPrompt}, ${styleDesc}, ${quality}, ${noText}`;
+}
 
 const PRO_CHIPS = [
   'Clean title slide visual', 'Minimalist process diagram',
@@ -114,21 +141,22 @@ export default function ProjectPage() {
     setScore(null);
     setSaved(false);
 
-    const fullPrompt = `${mode === 'professional' ? 'Professional presentation visual' : 'Fun personal visual'}: ${prompt}. Project: ${project.title}. Style: ${project.style}.`;
+    const imagePrompt = buildImagePrompt(prompt, mode, project.style, project.category);
 
+    // Score the raw user prompt — not the injected system text
     const scorePromise = fetch('/api/score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: fullPrompt }),
+      body: JSON.stringify({ prompt, mode, style: project.style, category: project.category }),
     }).then(r => r.json()).then(s => { setScore(s); return s; }).catch(() => null);
 
     const imagePromise = (async () => {
       try {
-        const imgEl = await puter.ai.txt2img(fullPrompt);
+        const imgEl = await puter.ai.txt2img(imagePrompt);
         const url = imgEl?.src || imgEl;
         setGeneratedUrl(url);
       } catch {
-        setGeneratedUrl(`https://placehold.co/400x300/1e1b4b/a78bfa?text=${encodeURIComponent(prompt.slice(0, 20))}`);
+        setGeneratedUrl(`https://placehold.co/800x450/1e1b4b/a78bfa?text=${encodeURIComponent(prompt.slice(0, 30))}`);
       }
     })();
 
