@@ -37,7 +37,6 @@ interface AppShellProps {
   onUpdateItem?: (id: string, patch: Partial<PlacedItem>) => void;
   onRemoveItem?: (id: string) => void;
   onRemoveBg?: (id: string) => void;
-  // Slide upload
   uploadedSlides?: string[];
   selectedSlide?: number;
   onSelectSlide?: (index: number) => void;
@@ -100,38 +99,36 @@ export default function AppShell({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-950">
+    <div className="flex h-screen overflow-hidden" style={{ background: '#080810' }}>
       {/* Google Slides canvas */}
-      <div className="flex-1 flex flex-col min-w-0" style={{ background: '#1e1e1e' }}>
+      <div className="flex-1 flex flex-col min-w-0" style={{ background: '#1a1a22' }}>
         {/* Top menu bar */}
-        <div className="h-10 flex items-center px-4 gap-3 shrink-0 border-b" style={{ background: '#2d2d2d', borderColor: '#3a3a3a' }}>
-          <div className="flex items-center gap-2 shrink-0">
+        <div className="h-10 flex items-center px-4 gap-3 shrink-0 border-b" style={{ background: '#1e1e28', borderColor: '#2a2a38' }}>
+          <div className="flex items-center gap-2.5 shrink-0">
             <div className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold" style={{ background: '#FBBC04' }}>G</div>
-            <span className="text-gray-300 text-xs font-medium truncate max-w-48">{projectTitle || 'Untitled Presentation'}</span>
+            <span className="text-sm font-medium truncate max-w-52 tracking-tight" style={{ color: '#e0e0e8' }}>{projectTitle || 'Untitled Presentation'}</span>
           </div>
-          <div className="flex items-center gap-1 ml-3">
+          <div className="flex items-center gap-0.5 ml-4">
             {['File','Edit','View','Insert','Format','Tools','Extensions','Help'].map(m => (
-              <span key={m} className="text-xs px-2 py-0.5 rounded cursor-default hover:bg-white/10 transition-colors" style={{ color: '#c9c9c9' }}>{m}</span>
+              <span key={m} className="text-xs px-2 py-1 rounded cursor-default transition-colors hover:bg-white/8" style={{ color: '#9090a8' }}>{m}</span>
             ))}
           </div>
           <div className="ml-auto flex items-center gap-2">
             {hasPlaced && (
-              <span className="text-xs px-2 py-0.5 rounded" style={{ background: '#3a3a3a', color: '#888' }}>
-                drag to move · corner to resize
-              </span>
+              <span className="text-xs" style={{ color: '#55556a' }}>drag · resize</span>
             )}
             {onRequestUpload && (
               <button
                 onClick={onRequestUpload}
-                className="text-xs px-3 py-1 rounded-md font-medium transition-colors flex items-center gap-1.5"
-                style={{ background: '#3a3a3a', color: '#ccc' }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#4a4a4a')}
-                onMouseLeave={e => (e.currentTarget.style.background = '#3a3a3a')}
+                className="text-xs px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 border"
+                style={{ background: '#22222e', borderColor: '#2e2e3e', color: '#b0b0c8' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#2a2a38'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#22222e'; }}
               >
                 {loadingSlides ? (
-                  <><span className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin inline-block" /> Loading…</>
+                  <><span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin inline-block" /> Rendering…</>
                 ) : (
-                  <>📎 {hasUploadedSlides ? 'Replace PDF' : 'Upload PDF / PPTX'}</>
+                  <>{hasUploadedSlides ? '↺ Replace' : '↑ Upload PDF'}</>
                 )}
               </button>
             )}
@@ -139,15 +136,15 @@ export default function AppShell({
         </div>
 
         {/* Toolbar */}
-        <div className="h-9 flex items-center px-3 gap-1.5 shrink-0 border-b" style={{ background: '#2d2d2d', borderColor: '#3a3a3a' }}>
-          {['↩','↪','🖨','⤢','T','⬜','⟠','🖊','🎨'].map((icon, i) => (
-            <div key={i} className="w-7 h-7 rounded flex items-center justify-center text-xs cursor-default hover:bg-white/10 transition-colors" style={{ color: '#c9c9c9' }}>{icon}</div>
+        <div className="h-9 flex items-center px-3 gap-1 shrink-0 border-b" style={{ background: '#1e1e28', borderColor: '#2a2a38' }}>
+          {['↩','↪','T','⬜','🖊'].map((icon, i) => (
+            <div key={i} className="w-7 h-7 rounded flex items-center justify-center text-xs cursor-default transition-colors hover:bg-white/8" style={{ color: '#9090a8' }}>{icon}</div>
           ))}
-          <div className="w-px h-5 mx-1" style={{ background: '#505050' }} />
-          <span className="text-xs" style={{ color: '#aaa' }}>100% ▾</span>
+          <div className="w-px h-4 mx-2" style={{ background: '#2e2e3e' }} />
+          <span className="text-xs" style={{ color: '#55556a' }}>100%</span>
           {hasUploadedSlides && (
-            <span className="ml-3 text-xs" style={{ color: '#888' }}>
-              Slide {selectedSlide + 1} of {uploadedSlides.length}
+            <span className="ml-3 text-xs font-medium" style={{ color: '#6868a0' }}>
+              Slide {selectedSlide + 1} / {uploadedSlides.length}
             </span>
           )}
         </div>
@@ -155,7 +152,7 @@ export default function AppShell({
         {/* Canvas area */}
         <div className="flex-1 flex overflow-hidden">
           {/* Slide strip */}
-          <div className="w-[72px] flex flex-col items-center py-3 gap-2 overflow-y-auto shrink-0 border-r" style={{ background: '#252525', borderColor: '#3a3a3a' }}>
+          <div className="w-[68px] flex flex-col items-center py-3 gap-2 overflow-y-auto shrink-0 border-r" style={{ background: '#16161e', borderColor: '#2a2a38' }}>
             {hasUploadedSlides ? (
               uploadedSlides.map((slideUrl, i) => {
                 const itemsOnSlide = placedItems.filter(it => it.slideIndex === i).length;
@@ -163,16 +160,16 @@ export default function AppShell({
                   <button
                     key={i}
                     onClick={() => onSelectSlide?.(i)}
-                    className="relative w-14 rounded overflow-hidden border-2 transition-all shrink-0"
+                    className="relative w-12 rounded overflow-hidden shrink-0 transition-all"
                     style={{
-                      height: '40px',
-                      borderColor: i === selectedSlide ? '#4285F4' : 'transparent',
-                      outline: i === selectedSlide ? '1px solid #4285F4' : 'none',
+                      height: '36px',
+                      outline: i === selectedSlide ? '2px solid #4f6ef7' : '2px solid transparent',
+                      outlineOffset: '1px',
                     }}
                   >
                     <img src={slideUrl} className="w-full h-full object-cover" alt={`Slide ${i + 1}`} />
                     {itemsOnSlide > 0 && (
-                      <div className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-violet-500 flex items-center justify-center text-white font-bold" style={{ fontSize: '8px' }}>
+                      <div className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center text-white font-bold" style={{ fontSize: '8px', background: '#4f6ef7' }}>
                         {itemsOnSlide}
                       </div>
                     )}
@@ -181,12 +178,12 @@ export default function AppShell({
               })
             ) : (
               [1,2,3,4,5,6].map(i => (
-                <div key={i} className="w-14 rounded flex items-center justify-center overflow-hidden shrink-0 border-2"
-                  style={{ height: '40px', background: '#3a3a3a', borderColor: i === 1 ? '#4285F4' : 'transparent' }}>
+                <div key={i} className="w-12 rounded overflow-hidden shrink-0 flex items-center justify-center transition-all"
+                  style={{ height: '36px', background: '#22222e', outline: i === 1 ? '2px solid #4285F4' : '2px solid transparent', outlineOffset: '1px' }}>
                   {i === 1 && slideImage ? (
                     <img src={slideImage} className="w-full h-full object-cover" alt="" />
                   ) : (
-                    <span className="text-xs" style={{ color: '#666' }}>{i}</span>
+                    <span className="text-xs" style={{ color: '#44445a' }}>{i}</span>
                   )}
                 </div>
               ))
@@ -194,107 +191,73 @@ export default function AppShell({
           </div>
 
           {/* Main slide canvas */}
-          <div className="flex-1 flex items-center justify-center p-10" style={{ background: '#1e1e1e' }}>
+          <div className="flex-1 flex items-center justify-center p-10" style={{ background: '#1a1a22' }}>
             <div
               ref={slideRef}
-              className="w-full max-w-3xl aspect-video rounded-lg shadow-2xl overflow-hidden relative select-none"
-              style={{ background: '#fff' }}
+              className="w-full max-w-3xl aspect-video rounded-md shadow-2xl overflow-hidden relative select-none"
+              style={{ background: '#fff', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }}
               onPointerMove={onSlidePointerMove}
               onPointerUp={onSlidePointerUp}
               onPointerLeave={onSlidePointerUp}
             >
-              {/* Slide background */}
               {generating ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-20" style={{ background: 'linear-gradient(135deg, #1a0533 0%, #0d1a33 100%)' }}>
-                  <div className="w-14 h-14 rounded-full border-4 border-violet-400/30 border-t-violet-400 animate-spin mb-4" />
-                  <p className="text-violet-300 text-sm font-medium">Generating visual...</p>
-                  <p className="text-violet-500 text-xs mt-1">Powered by PixelMuse</p>
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-20" style={{ background: '#08080f' }}>
+                  <div className="w-10 h-10 rounded-full border-2 animate-spin mb-4" style={{ borderColor: '#4f6ef720', borderTopColor: '#4f6ef7' }} />
+                  <p className="text-sm font-medium tracking-tight" style={{ color: '#8080a8' }}>Generating…</p>
                 </div>
               ) : currentSlideImage ? (
-                // Uploaded PDF slide as background
-                <img
-                  src={currentSlideImage}
-                  alt={`Slide ${selectedSlide + 1}`}
-                  className="absolute inset-0 w-full h-full"
-                  style={{ objectFit: 'contain', background: '#fff' }}
-                  draggable={false}
-                />
+                <img src={currentSlideImage} alt={`Slide ${selectedSlide + 1}`} className="absolute inset-0 w-full h-full" style={{ objectFit: 'contain', background: '#fff' }} draggable={false} />
               ) : !hasPlaced && slideImage ? (
                 <img src={slideImage} alt="Slide visual" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
-              ) : !hasPlaced && !currentSlideImage ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center px-16" style={{ background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)' }}>
-                  <div className="w-28 h-2 bg-indigo-200 rounded-full mb-5" />
-                  <div className="w-60 h-3.5 bg-indigo-300/60 rounded-full mb-2.5" />
-                  <div className="w-44 h-3 bg-indigo-200/60 rounded-full mb-2" />
-                  <div className="w-52 h-3 bg-indigo-200/40 rounded-full mb-8" />
-                  <p className="text-indigo-400/70 text-xs text-center">Upload PDF/PPTX or generate a visual → Place on Slide</p>
+              ) : !hasPlaced ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center px-16" style={{ background: 'linear-gradient(135deg, #f0f4ff 0%, #e8edff 100%)' }}>
+                  <div className="w-32 h-1.5 rounded-full mb-5" style={{ background: '#c5cef8' }} />
+                  <div className="w-56 h-3 rounded-full mb-2" style={{ background: '#d8def8' }} />
+                  <div className="w-44 h-3 rounded-full mb-2" style={{ background: '#e4e8f8' }} />
+                  <div className="w-48 h-3 rounded-full mb-10" style={{ background: '#eceef8' }} />
+                  <p className="text-xs text-center" style={{ color: '#8898c8' }}>Upload PDF or generate a visual → Place on Slide</p>
                 </div>
               ) : null}
 
-              {/* Placed items for this slide */}
               {visibleItems.map(item => (
                 <div
                   key={item.id}
                   ref={el => { itemRefs.current[item.id] = el; }}
-                  style={{
-                    position: 'absolute',
-                    left: `${item.x}%`, top: `${item.y}%`,
-                    width: `${item.w}%`, height: `${item.h}%`,
-                    cursor: 'move',
-                    zIndex: 10,
-                  }}
+                  style={{ position: 'absolute', left: `${item.x}%`, top: `${item.y}%`, width: `${item.w}%`, height: `${item.h}%`, cursor: 'move', zIndex: 10 }}
                   onPointerDown={(e) => startDrag(e, item, 'move')}
                   className="group"
                 >
-                  <img
-                    src={item.url}
-                    draggable={false}
-                    style={{
-                      width: '100%', height: '100%',
-                      objectFit: 'contain',
-                      display: 'block',
-                      pointerEvents: 'none',
-                    }}
-                    alt=""
-                  />
-                  {/* Hover border */}
-                  <div className="absolute inset-0 border-2 border-blue-500 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-
-                  {/* Controls bar */}
+                  <img src={item.url} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', pointerEvents: 'none' }} alt="" />
+                  <div className="absolute inset-0 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ outline: '2px solid #4f6ef7', outlineOffset: '-1px' }} />
                   <div className="absolute -top-7 left-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onPointerDown={e => e.stopPropagation()}
                       onClick={() => onRemoveBg?.(item.id)}
-                      className="text-xs px-1.5 py-0.5 rounded font-medium bg-gray-800 text-gray-300 hover:bg-violet-600 hover:text-white transition-colors whitespace-nowrap"
+                      className="text-xs px-2 py-0.5 rounded font-medium transition-colors"
+                      style={{ background: '#22222e', color: '#9090a8', border: '1px solid #2e2e3e' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#4f6ef7'; (e.currentTarget as HTMLElement).style.color = '#fff'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#22222e'; (e.currentTarget as HTMLElement).style.color = '#9090a8'; }}
                     >
                       Remove BG
                     </button>
                     <button
                       onPointerDown={e => e.stopPropagation()}
                       onClick={() => onRemoveItem?.(item.id)}
-                      className="text-xs px-1.5 py-0.5 rounded bg-red-800 hover:bg-red-700 text-white font-medium transition-colors"
+                      className="text-xs px-1.5 py-0.5 rounded font-medium transition-colors"
+                      style={{ background: '#3a1a1a', color: '#e06060', border: '1px solid #4a2020' }}
                     >
                       ✕
                     </button>
                   </div>
-
-                  {/* Resize handles */}
                   {(['se','sw','ne','nw'] as const).map(corner => (
                     <div
                       key={corner}
                       style={{
                         position: 'absolute',
-                        right: corner.includes('e') ? -5 : 'auto',
-                        left: corner.includes('w') ? -5 : 'auto',
-                        bottom: corner.includes('s') ? -5 : 'auto',
-                        top: corner.includes('n') ? -5 : 'auto',
-                        width: 10, height: 10,
-                        cursor: `${corner}-resize`,
-                        background: '#3b82f6',
-                        border: '2px solid #fff',
-                        borderRadius: 2,
-                        zIndex: 20,
-                        opacity: 0,
+                        right: corner.includes('e') ? -4 : 'auto', left: corner.includes('w') ? -4 : 'auto',
+                        bottom: corner.includes('s') ? -4 : 'auto', top: corner.includes('n') ? -4 : 'auto',
+                        width: 8, height: 8, cursor: `${corner}-resize`,
+                        background: '#4f6ef7', border: '1.5px solid #fff', borderRadius: 1, zIndex: 20, opacity: 0,
                       }}
                       className="group-hover:opacity-100 transition-opacity"
                       onPointerDown={(e) => { e.stopPropagation(); startDrag(e, item, 'resize'); }}
@@ -303,8 +266,8 @@ export default function AppShell({
                 </div>
               ))}
 
-              <div className="absolute bottom-2 right-3 text-xs rounded px-1.5 py-0.5 z-30" style={{ color: '#999', background: 'rgba(255,255,255,0.85)' }}>
-                {hasUploadedSlides ? `Slide ${selectedSlide + 1} of ${uploadedSlides.length}` : 'Slide 1 of 8'}
+              <div className="absolute bottom-2 right-2.5 text-xs z-30" style={{ color: '#888', background: 'rgba(255,255,255,0.9)', padding: '1px 6px', borderRadius: 3 }}>
+                {hasUploadedSlides ? `${selectedSlide + 1} / ${uploadedSlides.length}` : '1 / 8'}
               </div>
             </div>
           </div>
@@ -312,19 +275,17 @@ export default function AppShell({
       </div>
 
       {/* PixelMuse Present sidebar */}
-      <div className="w-[400px] flex flex-col shrink-0 border-l border-gray-800" style={{ background: '#0a0a0f' }}>
-        <div className="px-4 py-3 border-b border-gray-800 flex items-center gap-2.5 shrink-0" style={{ background: '#111118' }}>
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-lg shrink-0"
-            style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #4338ca 100%)' }}>
-            <span className="text-white text-xs font-bold">PM</span>
+      <div className="w-[390px] flex flex-col shrink-0 border-l" style={{ background: '#0c0c14', borderColor: '#1e1e2a' }}>
+        {/* Header */}
+        <div className="px-4 py-3 flex items-center gap-3 shrink-0 border-b" style={{ background: '#0c0c14', borderColor: '#1e1e2a' }}>
+          <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 border" style={{ background: '#14141e', borderColor: '#2a2a3a' }}>
+            <span className="font-bold text-xs tracking-tight" style={{ color: '#f0f0f8' }}>PM</span>
           </div>
-          <div>
-            <p className="text-white font-semibold text-sm leading-tight">PixelMuse Present</p>
-            <p className="text-violet-400 text-xs leading-tight">AI Literacy Trainer</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold tracking-tight leading-tight" style={{ color: '#f0f0f8' }}>PixelMuse Present</p>
+            <p className="text-xs leading-tight" style={{ color: '#44445a' }}>AI literacy trainer</p>
           </div>
-          <div className="ml-auto">
-            <div className="text-xs px-2 py-0.5 rounded-full border border-violet-800 text-violet-400 font-medium">Beta</div>
-          </div>
+          <span className="text-xs font-medium" style={{ color: '#333345' }}>beta</span>
         </div>
         <div className="flex-1 overflow-y-auto">
           {children}

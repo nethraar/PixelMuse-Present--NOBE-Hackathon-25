@@ -35,13 +35,9 @@ export default function Dashboard() {
     const counts: Record<string, number> = {};
     projs.forEach(p => { counts[p.id] = getAssets(p.id).length; });
     setAssetCounts(counts);
-    // Show most recent saved asset on the slide canvas
     for (const p of projs) {
       const assets = getAssets(p.id);
-      if (assets.length > 0) {
-        setFeaturedImage(assets[assets.length - 1].url);
-        break;
-      }
+      if (assets.length > 0) { setFeaturedImage(assets[assets.length - 1].url); break; }
     }
   }
 
@@ -60,106 +56,157 @@ export default function Dashboard() {
 
   const latestScore = sessions.length ? sessions[sessions.length - 1].avgScore : 0;
   const firstScore = sessions.length ? sessions[0].avgScore : 0;
+  const scoreDelta = latestScore - firstScore;
+  const next = projects.find(p => progressCount(p) < 4) ?? projects[0];
 
   return (
     <AppShell slideImage={featuredImage}>
-      <div className="p-4 space-y-4">
-        {/* Score trajectory widget */}
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-white font-semibold text-sm">AI Literacy Score</span>
-            <span className="text-violet-400 font-bold text-lg">{latestScore}<span className="text-gray-500 text-xs">/100</span></span>
-          </div>
-          <div className="flex items-end gap-1.5 h-10 mb-2">
-            {sessions.map((s, i) => (
-              <div key={i} className="flex-1 flex flex-col items-end" title={`Session ${s.session}: ${s.avgScore}`}>
-                <div
-                  className={`w-full rounded-t transition-all ${i === sessions.length - 1 ? 'bg-violet-500' : 'bg-gray-700'}`}
-                  style={{ height: `${(s.avgScore / 100) * 40}px` }}
-                />
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>Session 1: {firstScore}</span>
-            <span>Now: {latestScore} {latestScore > firstScore ? `↑${latestScore - firstScore} pts` : ''}</span>
-          </div>
-          <p className="text-gray-500 text-xs mt-2">Every prompt — professional or personal — builds this score.</p>
-        </div>
-
-        {/* Next step suggestion */}
-        {(() => {
-          const next = projects.find(p => progressCount(p) < 4) ?? projects[0];
-          if (!next) return null;
-          const remaining = (['cover','diagram','divider','extras'] as const).find(k => !next.progressStatus[k]);
-          const action = remaining ? `Next: create a ${remaining} visual` : 'All visuals done — share your project!';
-          return (
-            <div
-              className="bg-violet-950 border border-violet-800 rounded-xl p-3 flex items-start gap-3 cursor-pointer hover:bg-violet-900 transition-colors"
-              onClick={() => router.push(`/project/${next.id}`)}
-            >
-              <div className="text-violet-400 text-lg mt-0.5">→</div>
-              <div>
-                <p className="text-violet-200 text-sm font-medium">Continue {next.title}</p>
-                <p className="text-violet-400 text-xs mt-0.5">{action} — {progressCount(next)}/4 done</p>
-              </div>
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <div className="px-5 pt-5 pb-4 border-b" style={{ borderColor: '#1a1a26' }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium tracking-widest uppercase mb-0.5" style={{ color: '#33334a', letterSpacing: '0.1em' }}>Dashboard</p>
+              <h1 className="text-lg font-semibold tracking-tight" style={{ color: '#f0f0f8' }}>Your Projects</h1>
             </div>
-          );
-        })()}
-
-        {/* Projects header */}
-        <div className="flex items-center justify-between">
-          <span className="text-white font-semibold text-sm">Projects</span>
-          <button
-            onClick={() => setShowModal(true)}
-            className="text-xs bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-lg transition-colors font-medium"
-          >
-            + New
-          </button>
+            <button
+              onClick={() => setShowModal(true)}
+              className="text-xs font-medium px-3 py-1.5 rounded-md transition-all"
+              style={{ background: '#4f6ef7', color: '#fff' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#6080ff'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#4f6ef7'; }}
+            >
+              + New
+            </button>
+          </div>
         </div>
 
-        {/* Project cards */}
-        <div className="space-y-2">
-          {projects.map(p => (
-            <div
-              key={p.id}
-              onClick={() => router.push(`/project/${p.id}`)}
-              className="bg-gray-900 border border-gray-800 rounded-xl p-3 cursor-pointer hover:border-gray-600 transition-colors"
-            >
-              <div className="flex items-start justify-between gap-2 mb-1.5">
-                <p className="text-white text-sm font-medium leading-tight">{p.title}</p>
-                <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 font-medium ${p.mode === 'professional' ? 'bg-blue-900 text-blue-300' : 'bg-amber-900 text-amber-300'}`}>
-                  {p.mode === 'professional' ? '🎓 Pro' : '🎉 Personal'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex gap-2 items-center">
-                  <span className="text-gray-500 text-xs">{CATEGORY_LABELS[p.category]}</span>
-                  {p.platform && <span className="text-gray-600 text-xs">· {p.platform === 'google-slides' ? 'Google Slides' : 'PowerPoint'}</span>}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-600 text-xs">{assetCounts[p.id] ?? 0} assets</span>
-                  <span className="text-gray-700 text-xs">·</span>
-                  <span className="text-gray-600 text-xs">{formatDate(p.updatedAt)}</span>
+        <div className="flex-1 overflow-y-auto">
+          {/* Score section */}
+          <div className="px-5 pt-5 pb-4 border-b" style={{ borderColor: '#1a1a26' }}>
+            <div className="flex items-end justify-between mb-3">
+              <div>
+                <p className="text-xs font-medium mb-1" style={{ color: '#44445a' }}>AI Literacy Score</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-bold tracking-tight" style={{ color: '#f0f0f8', lineHeight: 1 }}>{latestScore}</span>
+                  <span className="text-sm" style={{ color: '#33334a' }}>/100</span>
+                  {scoreDelta > 0 && (
+                    <span className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{ background: '#0d2a1a', color: '#3d9970' }}>
+                      +{scoreDelta}
+                    </span>
+                  )}
                 </div>
               </div>
-              <div className="flex gap-1">
-                {Object.entries(p.progressStatus).map(([key, done]) => (
-                  <div key={key} className={`h-1 flex-1 rounded-full ${done ? p.mode === 'professional' ? 'bg-blue-500' : 'bg-amber-500' : 'bg-gray-800'}`} />
+              <div className="flex items-end gap-1 h-8">
+                {sessions.map((s, i) => (
+                  <div
+                    key={i}
+                    title={`Session ${s.session}: ${s.avgScore}`}
+                    className="w-2 rounded-sm transition-all"
+                    style={{
+                      height: `${Math.max(4, (s.avgScore / 100) * 32)}px`,
+                      background: i === sessions.length - 1 ? '#4f6ef7' : '#22223a',
+                    }}
+                  />
                 ))}
               </div>
             </div>
-          ))}
+            <div className="flex justify-between text-xs" style={{ color: '#33334a' }}>
+              <span>Session 1 — {firstScore}</span>
+              <span>Now — {latestScore}</span>
+            </div>
+          </div>
+
+          {/* Next step */}
+          {next && (() => {
+            const remaining = (['cover','diagram','divider','extras'] as const).find(k => !next.progressStatus[k]);
+            const action = remaining ? `Next: ${remaining} visual` : 'All visuals complete';
+            return (
+              <div
+                className="mx-5 mt-4 rounded-md px-4 py-3 cursor-pointer transition-all border"
+                style={{ background: '#0e0e1a', borderColor: '#2a2a44' }}
+                onClick={() => router.push(`/project/${next.id}`)}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#4f6ef7'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#2a2a44'; }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-8 rounded-full shrink-0" style={{ background: next.mode === 'professional' ? '#3b82f6' : '#f59e0b' }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium tracking-tight truncate" style={{ color: '#d0d0e8' }}>{next.title}</p>
+                    <p className="text-xs mt-0.5" style={{ color: '#44445a' }}>{action} · {progressCount(next)}/4 done</p>
+                  </div>
+                  <span className="text-xs shrink-0" style={{ color: '#4f6ef7' }}>→</span>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Projects list */}
+          <div className="px-5 mt-5">
+            <p className="text-xs font-medium tracking-widest uppercase mb-3" style={{ color: '#33334a', letterSpacing: '0.1em' }}>
+              Projects
+            </p>
+            <div className="space-y-px">
+              {projects.map(p => {
+                const isPro = p.mode === 'professional';
+                const done = progressCount(p);
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => router.push(`/project/${p.id}`)}
+                    className="group cursor-pointer rounded-md px-3 py-3 transition-all"
+                    style={{ background: 'transparent' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#12121c'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Mode bar */}
+                      <div className="w-0.5 h-full min-h-[36px] rounded-full self-stretch shrink-0 mt-0.5" style={{ background: isPro ? '#3b82f6' : '#f59e0b', opacity: 0.7 }} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <p className="text-sm font-medium tracking-tight truncate" style={{ color: '#d8d8f0' }}>{p.title}</p>
+                          <span className="text-xs shrink-0 font-medium" style={{ color: isPro ? '#6090d0' : '#c09040' }}>
+                            {isPro ? 'Pro' : 'Personal'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs capitalize" style={{ color: '#33334a' }}>{CATEGORY_LABELS[p.category]}</span>
+                            {p.platform && <span className="text-xs" style={{ color: '#2a2a3a' }}>· {p.platform === 'google-slides' ? 'Slides' : 'PPT'}</span>}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs" style={{ color: '#2a2a3a' }}>{assetCounts[p.id] ?? 0} assets</span>
+                            <span className="text-xs" style={{ color: '#22222e' }}>·</span>
+                            <span className="text-xs" style={{ color: '#2a2a3a' }}>{formatDate(p.updatedAt)}</span>
+                          </div>
+                        </div>
+                        {/* Progress pills */}
+                        <div className="flex gap-1 mt-2">
+                          {Object.entries(p.progressStatus).map(([key, done_]) => (
+                            <div key={key} className="h-0.5 flex-1 rounded-full" style={{ background: done_ ? (isPro ? '#3b82f6' : '#f59e0b') : '#1e1e2a' }} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {projects.length === 0 && (
+            <div className="px-5 py-16 text-center">
+              <p className="text-sm font-medium mb-1" style={{ color: '#44445a' }}>No projects yet</p>
+              <p className="text-xs" style={{ color: '#22223a' }}>Create one to start building AI literacy</p>
+            </div>
+          )}
         </div>
       </div>
 
       {showModal && (
         <NewProjectModal
           onClose={() => setShowModal(false)}
-          onCreate={(projectId) => {
-            setShowModal(false);
-            router.push(`/project/${projectId}`);
-          }}
+          onCreate={(projectId) => { setShowModal(false); router.push(`/project/${projectId}`); }}
         />
       )}
     </AppShell>
